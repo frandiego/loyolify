@@ -1,0 +1,75 @@
+tidy:
+  sleep_seconds : 2
+  output_path: data/tidy
+  guess_functions:
+    - as.integer
+    - as.numeric
+    - as.character
+    
+preprocess:
+  columns:
+    - usuario_id
+    - alumno_id
+    - estudio
+    - curso
+    - grupo
+    - sexo
+    - ano
+    - inicio
+    - aceptar
+    - ano_nacimiento
+    - genero
+    - zurdo
+    - optativas
+    - dispositivo
+    - calificaciones
+    - calificaciones__lengua
+    - calificaciones__matematicas
+    - calificaciones__ingles
+    - calificaciones__idiomas_casa
+    - calificaciones__comida_celebracion
+    - social__amigos
+    - social__mejores_amigos
+    - social__mensaje
+    - social__no_amigos
+    - social__peores_amigos
+    - social__popularidad
+    - dinero__a
+    - dinero__b
+    - dinero__c
+    - dinero__d
+    - dinero__e
+    - dinero__f
+    - adivinanzas__padre
+    - adivinanzas__biblioteca
+    - adivinanzas__carrera
+    - adivinanzas__loteria
+    - adivinanzas__ahorros_a
+    - adivinanzas__ahorros_b
+    - probabilidad__a
+    - probabilidad__b
+    - probabilidad__c
+    - probabilidad__d
+    - probabilidad__e
+    - probabilidad__f
+    - pensamiento_estrategico__a
+    - pensamiento_estrategico__b
+    - pensamiento_estrategico__c
+    - pensamiento_estrategico__d
+    - pensamiento_estrategico_dinero__a
+    - pensamiento_estrategico_dinero__b
+    - pensamiento_estrategico_dinero__c
+    - estado_animo__solo
+    - estado_animo__diversion
+    - estado_animo__general
+    - estado_fisico
+    - estado_fisico__altura
+    - estado_fisico__peso
+    - creatividad__texto
+    - creatividad__clip
+    - actividad_fisica__andar
+    - actividad_fisica__sentado
+    - actividad_fisica__intensa_veces
+    - actividad_fisica__intensa_tiempo
+    - actividad_fisica__moderada_veces
+    - actividad_fisica__moderada_tiempo

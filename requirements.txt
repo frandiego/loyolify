@@ -1,5 +1,4 @@
 renv
 readxl
 data.table
-magrittr
-formatR
+purrr
