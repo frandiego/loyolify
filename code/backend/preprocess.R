@@ -19,7 +19,7 @@ preprocess_read <- function(path){
 }
 
 
-preprocess <- function(cnf){
+preprocess_filter <- function(cnf){
   columns = cnf$preprocess$columns
   path = cnf$tidy$output_path
   path %>% get_filenames %>% file.path(path, .) %>% 
@@ -28,3 +28,15 @@ preprocess <- function(cnf){
     .[, columns, with=F] %>% 
     .[]
 }
+
+preprocess <- function(cnf){
+  df = preprocess_filter(cnf)
+  l = list()
+  l[['actitudes']] <- create_section_actitudes(df)
+  l[['cognitivas']] <- create_section_cognitivas(df)
+  l[['social']] <- create_section_social(df)
+  l[['salud']] <- create_section_salud(df)
+  l %>% rbindlist() %>% unique()
+}
+
+

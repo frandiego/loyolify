@@ -59,10 +59,3 @@ tidy <- function(input_files, cnf) {
   input_files %>% walk(~tidy_file(., cnf))
 }
 
-
-
-
-
-  
-
-
