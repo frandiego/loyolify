@@ -2,8 +2,6 @@
 ## author: Francisco Jose Diego Acosta
 
 
-library(highcharter)
-
 
 plot_data <- function(df, filter=list(), compare='' , facet=''){
   f_ = rep(1, nrow(df))
@@ -28,13 +26,13 @@ plot_data <- function(df, filter=list(), compare='' , facet=''){
 
 
 plot_tidy_data <- function(df, cnf){
-  dfp = df[all==1]
-  dfp = dfp[!is.na(y), 
-            .(ypct = round(.N/nrow(dfp), 3)*100), 
-            by = .(y, filter, compare, facet)][order(y)]
-  dfp[, color := cnf$plot$main_color]
-  dfp[, label := factor(y, labels=cnf$plot$x_labels, ordered = T)]
-  dfp %>% .[]
+  df %>% 
+    .[filter==1] %>% 
+    .[!is.na(y)] %>% 
+    .[, .N, by = .(y, filter, compare, facet)] %>% 
+    .[, TOTAL := sum(N)] %>% 
+    .[, PCT := round(N/TOTAL, 3) * 100] %>% 
+    .[]
 }
 
 
@@ -51,16 +49,17 @@ plot_options <- function(hc){
     hc_yAxis(title=list(text=''), 
              max =100, 
              labels = list(
-               formatter = JS("function () {return Math.abs(this.value) + '%';}")))
+               formatter = JS("function () {return Math.abs(this.value) + '%';}"))) %>% 
+    hc_colors(cnf$plot$main_color)
 }
 
 
 plot <- function(df, cnf, filter=list(), compare='', facet=''){
   df %>% 
-  plot_data(filter=filter, compare=compare, facet=facet) %>% 
-  plot_tidy_data(cnf) %>% 
+    plot_data(filter=filter, compare=compare, facet=facet) %>%
+    plot_tidy_data(., cnf) %>% 
     hchart('column', 
-           hcaes(x=y, y=ypct, color=color, name=label), name='Selecinado') %>% 
+           hcaes(x=y, y=PCT), name='Selecinado') %>%  
     plot_options()
 }
 
