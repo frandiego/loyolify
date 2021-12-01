@@ -28,19 +28,28 @@ sidebar <- function(cnf) {
     
     argonSidebarHeader(),
     
+    # schools
+    shiny::selectizeInput(inputId = 'school', 
+                          label = 'Colegios', 
+                          choices = c(''), 
+                          multiple = T), 
+    
     # sections
     shiny::selectizeInput(inputId = 'section', 
                           label = 'Sección', 
                           choices = c(''), 
-                          multiple = F), 
+                          multiple = T), 
     
     # variables
-    shiny::selectizeInput(inputId = 'variables', 
+    shiny::selectizeInput(inputId = 'variable', 
                          label = 'Variables', 
                          choices = c(''), 
-                         multiple = T) 
+                         multiple = T)
     
   )
+  
+
+
   
 }
 

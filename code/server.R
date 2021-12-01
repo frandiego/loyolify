@@ -8,12 +8,25 @@ server <- function(input, output, session) {
   sections <- reactive({ data() %>% .[['section']] %>% unique() })
   
   # filter
-  filter <- reactive({ list(variable = input$variables) })
+  filter <- reactive({ list(variable = input$variable, 
+                            school = input$school)
+    })
   
   # plot
   reactive_plot <- reactive({ plot(df=data(), cnf = cnf, filter = filter()) })
   output$plot <- renderHighchart({reactive_plot()})
   
+  
+  # update schools
+  observeEvent(eventExpr = there_is_data, 
+               handlerExpr = {
+                 choices =data() %>% .[['school']] %>% unique() -> choices
+                 updateSelectizeInput(session = session, 
+                                      inputId = 'school', 
+                                      choices = choices, 
+                                      selected = choices
+                 )
+               })
   
   # update sections
   observeEvent(eventExpr = there_is_data, 
@@ -22,7 +35,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'section', 
                                       choices = choices, 
-                                      selected = head(choices, 1)
+                                      selected = choices
                  )
                })
   
@@ -32,10 +45,12 @@ server <- function(input, output, session) {
                  choices = data() %>% .[section %in% input$section] %>% 
                    .[['variable']] %>% unique() -> choices
                  updateSelectizeInput(session = session, 
-                                      inputId = 'variables', 
+                                      inputId = 'variable', 
                                       choices = choices, 
                                       selected = choices
                  )
                })
+  
+
   
 }
