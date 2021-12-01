@@ -34,11 +34,23 @@ sidebar <- function(cnf) {
                           choices = c(''), 
                           multiple = T), 
     
+    # course
+    shiny::selectizeInput(inputId = 'course', 
+                          label = 'Cursos', 
+                          choices = c(''), 
+                          multiple = T), 
+    
+    # group
+    shiny::selectizeInput(inputId = 'group', 
+                          label = 'Grupos', 
+                          choices = c(''), 
+                          multiple = T), 
+    
     # sections
     shiny::selectizeInput(inputId = 'section', 
                           label = 'Sección', 
                           choices = c(''), 
-                          multiple = T), 
+                          multiple = F), 
     
     # variables
     shiny::selectizeInput(inputId = 'variable', 
@@ -59,6 +71,9 @@ body <- function() {
     argonTabItems(
       argonTabItem(
         tabName = 'plot', 
+        argonRow(uiOutput('title')),
+        shiny::br(),
+        argonRow(),
         highchartOutput('plot')
         
       )

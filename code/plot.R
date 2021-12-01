@@ -63,3 +63,23 @@ plot <- function(df, cnf, filter=list(), compare='', facet=''){
 }
 
 
+plural <- function(string, vector){
+  paste0(string, ifelse(length(vector)>1, 's', ' '))
+}
+
+
+set_sentence <- function(string,vector){
+  paste0(plural(string, vector), ' : ', paste0(vector, collapse = ' - '))
+}
+
+
+set_title <- function(schools, courses, groups, variables){
+  title_list = list(
+    set_sentence('Colegio', schools), 
+    set_sentence('Curso', courses), 
+    set_sentence('Grupo', groups),
+    set_sentence('Variable', variables)
+  )
+  paste0(paste0(title_list, collapse = '<br/>'), '<br/>')
+}
+

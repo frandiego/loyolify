@@ -9,8 +9,21 @@ server <- function(input, output, session) {
   
   # filter
   filter <- reactive({ list(variable = input$variable, 
-                            school = input$school)
+                            school = input$school, 
+                            course = input$course, 
+                            group = input$group
+                            )
     })
+  
+  # title
+  reactive_title <- reactive({
+    HTML(set_title(schools = input$school, 
+                   courses = input$course, 
+                   groups = LETTERS[1:length(input$group)], 
+                   variables = input$variable
+                   ))
+  })
+  output$title <- renderUI({reactive_title()})
   
   # plot
   reactive_plot <- reactive({ plot(df=data(), cnf = cnf, filter = filter()) })
@@ -20,9 +33,34 @@ server <- function(input, output, session) {
   # update schools
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
-                 choices =data() %>% .[['school']] %>% unique() -> choices
+                 data() %>% .[['school']] %>% unique() -> choices
                  updateSelectizeInput(session = session, 
                                       inputId = 'school', 
+                                      choices = choices, 
+                                      selected = choices
+                 )
+               })
+  
+  # update course
+  observeEvent(eventExpr = input$school, 
+               handlerExpr = {
+                 data() %>% .[school %in% input$school] %>% 
+                   .[['course']] %>% unique() -> choices
+                 updateSelectizeInput(session = session, 
+                                      inputId = 'course', 
+                                      choices = choices, 
+                                      selected = choices
+                 )
+               })
+  
+  # update group
+  observeEvent(eventExpr = input$course, 
+               handlerExpr = {
+                 data() %>% .[course %in% input$course] %>% 
+                   .[['group']] %>% unique() -> choices
+                 names(choices) <- LETTERS[1:length(choices)]
+                 updateSelectizeInput(session = session, 
+                                      inputId = 'group', 
                                       choices = choices, 
                                       selected = choices
                  )
@@ -42,7 +80,7 @@ server <- function(input, output, session) {
   # update variables
   observeEvent(eventExpr = input$section, 
                handlerExpr = {
-                 choices = data() %>% .[section %in% input$section] %>% 
+                 data() %>% .[section %in% input$section] %>% 
                    .[['variable']] %>% unique() -> choices
                  updateSelectizeInput(session = session, 
                                       inputId = 'variable', 
