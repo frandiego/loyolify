@@ -1,5 +1,13 @@
 rm(list = ls())
-cnf = yaml::read_yaml('config.yml')
-sapply(list.files('code', recursive = T, full.names = T), source)
-library_requirements('requirements.txt')
-shinyApp(ui = ui, server = server)
+
+deploy <- function(config_path='config.yml'){
+  cnf <<- yaml::read_yaml(config_path)
+  sapply(list.files(cnf$deploy$codepath, recursive = T, full.names = T), source)
+  library_dockerfile(cnf$deploy$dockerfile)
+  shinyApp(ui = ui(cnf), 
+           server = server, 
+           options = list(port=cnf$deploy$port))
+}
+
+
+deploy()

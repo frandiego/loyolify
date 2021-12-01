@@ -67,3 +67,9 @@ ui:
   title: Loyolify
   description: Survey Metrics
   author: Francisco José Diego Acosta
+  
+deploy:
+  dockerfile: Dockerfile
+  codepath : code
+  port: 8080
+  
