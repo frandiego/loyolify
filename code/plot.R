@@ -2,7 +2,6 @@
 ## author: Francisco Jose Diego Acosta
 
 
-
 plot_data <- function(df, filter=list(), compare='' , facet=''){
   f_ = rep(1, nrow(df))
   c_ = rep(1, nrow(df))

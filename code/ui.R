@@ -24,8 +24,24 @@ sidebar <- function(cnf) {
     background = "white",
     size = "md",
     side = "left",
-    id = "sidebar"
+    id = "sidebar", 
+    
+    argonSidebarHeader(),
+    
+    # sections
+    shiny::selectizeInput(inputId = 'section', 
+                          label = 'Sección', 
+                          choices = c(''), 
+                          multiple = F), 
+    
+    # variables
+    shiny::selectizeInput(inputId = 'variables', 
+                         label = 'Variables', 
+                         choices = c(''), 
+                         multiple = T) 
+    
   )
+  
 }
 
 
@@ -33,7 +49,9 @@ body <- function() {
   argonDashBody(
     argonTabItems(
       argonTabItem(
-        tabName = 'test'
+        tabName = 'plot', 
+        highchartOutput('plot')
+        
       )
     )
   )
