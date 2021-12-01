@@ -46,12 +46,12 @@ create_conflicto_cohesion <- function(df){
   dfsoc[, reciprocity := .N-1, by = .(edge, var)]
   dfsoc[, .(n=sum(reciprocity)), by = .(from, var)] -> dfsoc
   setnames(dfsoc, c('from', 'var'), c('usuario_id', 'variable'))
-  dfsoc[variable == 'social__amigos', variable := 'cohesion']
+  dfsoc[variable == 'social__amigos', variable := 'cohesión']
   dfsoc[variable == 'social__no_amigos', variable := 'conflicto']
-  dfsoc[variable == 'cohesion' &  n ==0, y:= 0]
-  dfsoc[variable == 'cohesion' &  n >0 & n<6, y:= 1]
-  dfsoc[variable == 'cohesion' &  n >=6 & n<11, y:= 2]
-  dfsoc[variable == 'cohesion' &  n >=11 , y:= 3]
+  dfsoc[variable == 'cohesión' &  n ==0, y:= 0]
+  dfsoc[variable == 'cohesión' &  n >0 & n<6, y:= 1]
+  dfsoc[variable == 'cohesión' &  n >=6 & n<11, y:= 2]
+  dfsoc[variable == 'cohesión' &  n >=11 , y:= 3]
   
   dfsoc[variable == 'conflicto' &  n ==0, y:= 0]
   dfsoc[variable == 'conflicto' &  n==1, y:= 1]

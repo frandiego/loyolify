@@ -2,3 +2,4 @@ renv
 readxl
 data.table
 purrr
+highcharter

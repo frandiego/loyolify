@@ -7,6 +7,7 @@ tidy:
     - as.character
     
 preprocess:
+  output_path: data/prep
   columns:
     - usuario_id
     - alumno_id
@@ -15,6 +16,7 @@ preprocess:
     - grupo
     - sexo
     - ano
+    - ano_nacimiento
     - genero
     - zurdo
     - dinero__a
@@ -52,4 +54,11 @@ preprocess:
     - estado_animo__solo
     - estado_animo__diversion
     - estado_animo__general
-    
+
+plot:
+  main_color : '#686BE5'
+  x_labels:
+    - Bajo
+    - Medio
+    - Alto
+    - Muy Alto

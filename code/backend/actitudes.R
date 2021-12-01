@@ -28,7 +28,7 @@ create_emprendimiento  <- function(df){
                    n>0 & n<=2, 1, 
                    n>2 & n<=4, 2, 
                    n>4 & n<=6, 3)] %>% 
-    .[, variable := 'emprendiemiento'] %>% 
+    .[, variable := 'emprendimiento'] %>% 
     .[, c(key, 'variable', 'y'), with=F] %>% .[]
 }
 

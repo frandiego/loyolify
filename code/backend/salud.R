@@ -20,7 +20,7 @@ create_animo <- function(df){
                    n>=0.6 & n<0.85, 1, 
                    n>0.85 & n<0.99, 2, 
                    n>=0.99, 3)] %>% 
-    .[, variable := 'animo'] %>% 
+    .[, variable := 'anímica'] %>% 
     .[, c(key, 'variable', 'y'), with=F] %>% 
     unique()
 }
