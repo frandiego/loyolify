@@ -1,6 +1,12 @@
 ## preprocess.R
 ## author: Francisco Jose Diego Acosta
 
+library_requirements <- function(path){
+  path %>% readLines() %>% 
+    map_chr(~strsplit(., '==') %>% unlist %>% head(1)) %>% 
+    walk(~library(., character.only = T))
+}
+
 
 get_filenames <- function(path){
   ls = list.files(gsub('/$', '', path))

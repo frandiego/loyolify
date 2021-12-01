@@ -1,0 +1,5 @@
+rm(list = ls())
+cnf = yaml::read_yaml('config.yml')
+sapply(list.files('code', recursive = T, full.names = T), source)
+library_requirements('requirements.txt')
+shinyApp(ui = ui, server = server)

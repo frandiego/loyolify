@@ -62,3 +62,8 @@ plot:
     - Medio
     - Alto
     - Muy Alto
+    
+ui:
+  title: Loyolify
+  description: Survey Metrics
+  author: Francisco José Diego Acosta
