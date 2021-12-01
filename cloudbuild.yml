@@ -1,0 +1,26 @@
+steps:
+  # build the container image
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      ["build", "-t", "gcr.io/dashbaord-331416/loyolify:${SHORT_SHA}", "."]
+    # push the container image to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "gcr.io/dashbaord-331416/loyolify"]
+    # deploy container image to Cloud Run
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "beta",
+        "run",
+        "deploy",
+        "hello-cloud-run",
+        "--image",
+        "gcr.io/dashbaord-331416/loyolify:${SHORT_SHA}",
+        "--region",
+        "us-central1",
+        "--allow-unauthenticated",
+      ]
+    env:
+      - "PORT=8080"
+images:
+  - gcr.io/dashbaord-331416/loyolify
