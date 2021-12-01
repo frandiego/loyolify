@@ -19,8 +19,8 @@ server <- function(input, output, session) {
   reactive_title <- reactive({
     HTML(set_title(schools = input$school, 
                    courses = input$course, 
-                   groups = LETTERS[1:length(input$group)], 
-                   variables = input$variable
+                   groups = LETTERS[1:length(input$group)],
+                   variables = stringr::str_to_title(input$variable)
                    ))
   })
   output$title <- renderUI({reactive_title()})
@@ -70,6 +70,7 @@ server <- function(input, output, session) {
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
                  data() %>% .[['section']] %>% unique() -> choices
+                 names(choices) <- stringr::str_to_title(choices)
                  updateSelectizeInput(session = session, 
                                       inputId = 'section', 
                                       choices = choices, 
@@ -82,6 +83,9 @@ server <- function(input, output, session) {
                handlerExpr = {
                  data() %>% .[section %in% input$section] %>% 
                    .[['variable']] %>% unique() -> choices
+                 
+                 names(choices) <- stringr::str_to_title(choices)
+                 
                  updateSelectizeInput(session = session, 
                                       inputId = 'variable', 
                                       choices = choices, 
