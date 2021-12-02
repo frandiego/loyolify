@@ -13,23 +13,3 @@ deploy <- function(config_path='config.yml', run=T){
 
 
 deploy(run = T)
-
-
-
-
-
-df = read_data(cnf)
-varnames = c('variable', 'school', 'course', 'group')
-varnames %>%  map(~df[[.]] %>% unique) -> filter
-names(filter) = varnames
-filter[['course']] = c(1,2)
-filter[['variable']] = c('relacional')
-
-compare = 'centro'
-facet = 'gender'
-
-dfp = plot(df, cnf, filter, compare = compare, facet=facet, display = F)
-
-
-
-

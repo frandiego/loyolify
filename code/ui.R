@@ -96,7 +96,10 @@ body <- function() {
                                                            Popular = 'is_popular'),  
                                             multiple = F)
           )), 
-        argonRow(argonColumn(uiOutput('title'), width = 4)),
+        argonRow(argonColumn(uiOutput('main_title'), width = 12, center = T)),
+        argonRow(argonColumn(uiOutput('title'), width = 4), 
+                 argonColumn(uiOutput('title_comp'), width = 4), 
+                 argonColumn(uiOutput('title_facet'), width = 4)),
         shiny::br(),
         argonRow(),
         htmlOutput('plot'), 

@@ -46,7 +46,7 @@ preprocess_group <- function(df){
   dt[, school := as.integer(estudio)]
   dt[, course := as.integer(gsub('[^0-9]', '', curso))]
   dt[, group := as.integer(factor(grupo, levels = letters))]
-  dt[, gender := ifelse(genero == 'mujer', 1, 0)]
+  dt[, fgender := ifelse(genero == 'mujer', 1, 0)]
   dt[, is_left_handed := ifelse(zurdo %in% c('si', 'izquierda'), 1, 
                                 ifelse(zurdo %in% c('no', 'derecha'), 0, NA))]
   dt[, -c(vars), with=F] %>% unique()

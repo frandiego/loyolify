@@ -25,8 +25,13 @@ filter_vector <- function(df, filter){
 }
 
 
-filter_vector_diff_element <- function(df, filter, element){
+filter_diff <- function(df, filter, element){
   diff= setdiff(unique(df[[element]]), unique(filter[[element]]))
   filter[[element]] <- diff[!is.na(diff)]
-  filter_vector(df, filter)
+  return(filter)
+} 
+
+
+filter_vector_diff_element <- function(df, filter, element){
+  filter_vector(df, filter_diff(df, filter, element))
 }

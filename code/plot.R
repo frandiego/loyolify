@@ -93,18 +93,40 @@ set_sentence <- function(string,vector){
 }
 
 
-set_title <- function(main=NULL, schools, courses, groups, variables){
+set_title <- function(main=NULL, schools, courses, groups){
   title_list = list(
     set_sentence('Centro', schools), 
     set_sentence('Curso', courses), 
-    set_sentence('Grupo', groups),
-    set_sentence('Variable', variables)
+    set_sentence('Grupo', groups)
   )
   title_str = paste0(paste0(title_list, collapse = '<br/>'), '<br/>')
   if(!is.null(main)){
     title_str = paste0('<b>', main, '</b> <br/>', title_str)
   }
   return(title_str)
+}
+
+
+title_comp <- function(main, x, selected = 'Seleccionado', notselected='Comparación'){
+  title_str = paste0('<b>', main, '</b> <br/>')
+  if(x=='gender'){
+    return(paste0(title_str, selected, ': Mujer <br/>', notselected, ': Hombre'))
+  }
+  if(x=='is_repeater'){
+    return(paste0(title_str, selected, ': Repetidor <br/>', notselected, ': No Repetidor'))
+  }
+  if(x == 'is_popular'){
+    return(paste0(title_str, selected, ': Popular <br/>', notselected, ': No Popular'))
+  }
+  
+}
+
+
+set_main_title <- function(variable){
+  variable = ifelse(variable == 'anímica', 'ánimo', variable)
+  variable = ifelse(variable == 'alimenticia', 'alimentación', variable)
+  variable = ifelse(variable == 'relacional', 'relaciones sociales', variable)
+  return(stringr::str_to_title(variable))
 }
 
 
@@ -115,6 +137,7 @@ plot_chart = function(df){
   
 } 
 
+
 data_expand <- function(df, cnf){
   grupos = df[, as.character(unique(grupo))]
   posiciones = df[, as.character(unique(posicion))]
@@ -124,10 +147,11 @@ data_expand <- function(df, cnf){
     as.data.table() %>% .[]
 }
 
+
 plot <- function(df, cnf, filter=list(), compare='', facet='', display=T){
   # compare = ifelse(compare==facet, 'no', compare)
   df %>% 
-    plot_data(filter=filter, compare=compare, facet=facet) %>% 
+    plot_data(filter=filter, compare=compare, facet=facet)  %>% 
     plot_tidy_data() %>% 
     data_expand(cnf) -> dfp
   
