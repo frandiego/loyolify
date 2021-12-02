@@ -57,7 +57,8 @@ plot_tidy_data <- function(df){
     .[, .N, by = .(y, filter, facet)] %>% 
     .[, TOTAL := sum(N), by = .(filter,  facet)] %>%
     .[, porcentaje := round(N/TOTAL, 3) * 100] %>% 
-    .[, grupo := factor(filter, levels=c(1,0), labels=grupo_labels, ordered = T)] %>% 
+    .[, grupo := ifelse(filter==1, head(grupo_labels, 1), tail(grupo_labels, 1))] %>% 
+    .[, grupo := factor(grupo, grupo_labels, ordered = F)] %>% 
     .[, nivel := factor(y, levels=c(0,1,2,3), labels = nivel_labels, ordered = T) ] %>%
     .[, posicion := factor(facet, levels = c(1, 0), labels = posicion_labels, ordered = T)] %>% 
     .[, c(columns), with=F] %>% 
@@ -132,7 +133,8 @@ set_main_title <- function(variable){
 
 plot_chart = function(df){
   df %>% 
-    hchart(hcaes(x=nivel, y=porcentaje,group=grupo), type='column', name=.[, unique(grupo)]) %>% 
+    hchart(hcaes(x=nivel, y=porcentaje,group=factor(grupo)), type='column', 
+           name=.[, sort(unique(grupo))]) %>% 
     plot_options()
   
 } 
