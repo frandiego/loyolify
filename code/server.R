@@ -17,7 +17,8 @@ server <- function(input, output, session) {
   
   # title
   reactive_title <- reactive({
-    HTML(set_title(schools = input$school, 
+    HTML(set_title(main='Seleccionado', 
+                   schools = input$school, 
                    courses = input$course, 
                    groups = LETTERS[1:length(input$group)],
                    variables = stringr::str_to_title(input$variable)
@@ -29,11 +30,12 @@ server <- function(input, output, session) {
   reactive_plot <- reactive({ plot(df=data(), 
                                    cnf = cnf, 
                                    filter = filter(), 
-                                   compare=input$compare
+                                   compare=input$compare, 
+                                   facet = input$facet
                                    ) })
   
 
-  output$plot <- renderHighchart({reactive_plot()})
+  output$plot <- renderUI({reactive_plot()})
   
   
   # update schools
@@ -55,7 +57,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'course', 
                                       choices = choices, 
-                                      selected = choices
+                                      selected = head(choices, round(length(choices) / 2))
                  )
                })
   
@@ -68,7 +70,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'group', 
                                       choices = choices, 
-                                      selected = choices
+                                      selected = head(choices, round(length(choices) / 2))
                  )
                })
   

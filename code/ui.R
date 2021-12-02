@@ -30,7 +30,7 @@ sidebar <- function(cnf) {
     
     # schools
     shiny::selectizeInput(inputId = 'school', 
-                          label = 'Colegios', 
+                          label = 'Centros', 
                           choices = c(''), 
                           multiple = T), 
     
@@ -73,23 +73,38 @@ body <- function() {
       argonTabItem(
         tabName = 'plot', 
         
-        shiny::selectizeInput(inputId = 'compare', 
-                              label = 'Comparar', 
-                              choices = list(No='No', 
-                                             Centro='school', 
-                                             Curso = 'course', 
-                                             Grupo = 'group', 
-                                             Género = 'gender', 
-                                             Repetidor = 'is_repeater', 
-                                             Popular = 'is_popular'),  
-                              multiple = F), 
-        argonRow(uiOutput('title')),
+        argonRow(
+          argonColumn(with=6, 
+                      shiny::selectizeInput(inputId = 'compare', 
+                                            label = 'Comparar', 
+                                            choices = list(No='No', 
+                                                           Centro='school', 
+                                                           Curso = 'course', 
+                                                           Grupo = 'group', 
+                                                           Género = 'gender', 
+                                                           Repetidor = 'is_repeater', 
+                                                           Popular = 'is_popular'),  
+                                            multiple = F)
+                      ), 
+          
+          argonColumn(with=6, 
+                      shiny::selectizeInput(inputId = 'facet', 
+                                            label = 'Dividir', 
+                                            choices = list(No='No', 
+                                                           Género = 'gender', 
+                                                           Repetidor = 'is_repeater', 
+                                                           Popular = 'is_popular'),  
+                                            multiple = F)
+          )), 
+        argonRow(argonColumn(uiOutput('title'), width = 4)),
         shiny::br(),
         argonRow(),
-        highchartOutput('plot')
+        htmlOutput('plot'), 
+        tableOutput('data')
       )
+     )
     )
-  )
+  
 }
 
 

@@ -28,31 +28,38 @@ create_comparison <- function(df, filter, comparison){
 
 
 
-
-
 plot_data <- function(df, filter=list(), compare='' , facet=''){
   f_int = as.integer(filter_vector(df, filter))
   c_int = as.integer(create_comparison(df, filter, compare))
-  facet_int = as.integer(create_comparison(df, filter, facet))
-  df[, c('filter', 'compare', 'facet') := list(f_int, c_int, facet_int)]
-  df[, all := as.integer(filter+compare+facet>0)]
+  df[, c('filter', 'compare') := list(f_int, c_int)]
+  if(facet %in% names(df)){
+    df[['facet']] = df[[facet]] %>% fill_na() %>% as.integer()
+  }else{
+    df[, facet := 0]
+  }
+  if((compare==facet) | (sum(c_int) == 0) |  sum(f_int - c_int) == 0){
+    df[, all := f_int]
+  }else{
+    df[, all := filter+facet+compare]
+  }
   df %>% .[]
 }
 
 
 plot_tidy_data <- function(df){
-  columns = c('grupo', 'nivel', 'porcentaje')
+  columns = c('grupo', 'posicion', 'nivel', 'porcentaje')
   grupo_labels = c('Seleccionado', 'Comparación')
+  posicion_labels = c( 'Izquierda', 'Derecha')
   nivel_labels = cnf$plot$x_labels
   df %>% 
-    .[all==1] %>% 
+    .[all>0] %>% 
     .[!is.na(y)] %>% 
     .[, .N, by = .(y, filter, facet)] %>% 
-    .[, TOTAL := sum(N), by = .(filter, facet)] %>% 
+    .[, TOTAL := sum(N), by = .(filter,  facet)] %>%
     .[, porcentaje := round(N/TOTAL, 3) * 100] %>% 
-    .[, grupo:= ifelse(filter==1, head(grupo_labels, 1), tail(grupo_labels, 1))] %>% 
-    .[, grupo := factor(grupo, grupo_labels, ordered = T)] %>% 
-    .[, nivel := factor(y, labels = nivel_labels, ordered = T) ] %>% 
+    .[, grupo := factor(filter, levels=c(1,0), labels=grupo_labels, ordered = T)] %>% 
+    .[, nivel := factor(y, levels=c(0,1,2,3), labels = nivel_labels, ordered = T) ] %>%
+    .[, posicion := factor(facet, levels = c(1, 0), labels = posicion_labels, ordered = T)] %>% 
     .[, c(columns), with=F] %>% 
     setkeyv(columns) %>% 
     .[]
@@ -86,25 +93,54 @@ set_sentence <- function(string,vector){
 }
 
 
-set_title <- function(schools, courses, groups, variables){
+set_title <- function(main=NULL, schools, courses, groups, variables){
   title_list = list(
-    set_sentence('Colegio', schools), 
+    set_sentence('Centro', schools), 
     set_sentence('Curso', courses), 
     set_sentence('Grupo', groups),
     set_sentence('Variable', variables)
   )
-  paste0(paste0(title_list, collapse = '<br/>'), '<br/>')
+  title_str = paste0(paste0(title_list, collapse = '<br/>'), '<br/>')
+  if(!is.null(main)){
+    title_str = paste0('<b>', main, '</b> <br/>', title_str)
+  }
+  return(title_str)
 }
 
 
+plot_chart = function(df){
+  df %>% 
+    hchart(hcaes(x=nivel, y=porcentaje,group=grupo), type='column', name=.[, unique(grupo)]) %>% 
+    plot_options()
+  
+} 
+
+data_expand <- function(df, cnf){
+  grupos = df[, as.character(unique(grupo))]
+  posiciones = df[, as.character(unique(posicion))]
+  niveles = unique(cnf$plot$x_labels)
+  dfex = expand.grid(grupo=grupos, posicion=posiciones, nivel=niveles)
+  merge(dfex, df, by=c('grupo', 'posicion', 'nivel'), all.x = T) %>% 
+    as.data.table() %>% .[]
+}
+
 plot <- function(df, cnf, filter=list(), compare='', facet='', display=T){
+  # compare = ifelse(compare==facet, 'no', compare)
   df %>% 
     plot_data(filter=filter, compare=compare, facet=facet) %>% 
-    plot_tidy_data() -> dfp
+    plot_tidy_data() %>% 
+    data_expand(cnf) -> dfp
+  
   if(display==T){
-    dfp %>% 
-    hchart(hcaes(x=nivel, y=porcentaje,group=grupo), type='column', name=.[, unique(grupo)]) %>% 
-      plot_options()
+    has_facets = max(dfp[, .(n=uniqueN(posicion)), by = .(grupo)][['n']])>1
+    if(has_facets==T){
+      dfp[['posicion']] %>% unique() %>% as.character() %>% 
+        map(~dfp[as.character(posicion) == .]) %>% 
+        map(plot_chart) %>% 
+        hw_grid(ncol = 2,browsable = T) 
+    }else{
+      dfp %>% plot_chart()
+    }
   }else{
     return(dfp)
   }
