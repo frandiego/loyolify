@@ -56,7 +56,8 @@ sidebar <- function(cnf) {
     shiny::selectizeInput(inputId = 'variable', 
                          label = 'Variables', 
                          choices = c(''), 
-                         multiple = T)
+                         multiple = F)
+    
     
   )
   
@@ -71,11 +72,21 @@ body <- function() {
     argonTabItems(
       argonTabItem(
         tabName = 'plot', 
+        
+        shiny::selectizeInput(inputId = 'compare', 
+                              label = 'Comparar', 
+                              choices = list(No='No', 
+                                             Centro='school', 
+                                             Curso = 'course', 
+                                             Grupo = 'group', 
+                                             Género = 'gender', 
+                                             Repetidor = 'is_repeater', 
+                                             Popular = 'is_popular'),  
+                              multiple = F), 
         argonRow(uiOutput('title')),
         shiny::br(),
         argonRow(),
         highchartOutput('plot')
-        
       )
     )
   )

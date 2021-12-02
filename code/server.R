@@ -11,7 +11,7 @@ server <- function(input, output, session) {
   filter <- reactive({ list(variable = input$variable, 
                             school = input$school, 
                             course = input$course, 
-                            group = input$group
+                            group = input$group 
                             )
     })
   
@@ -26,7 +26,13 @@ server <- function(input, output, session) {
   output$title <- renderUI({reactive_title()})
   
   # plot
-  reactive_plot <- reactive({ plot(df=data(), cnf = cnf, filter = filter()) })
+  reactive_plot <- reactive({ plot(df=data(), 
+                                   cnf = cnf, 
+                                   filter = filter(), 
+                                   compare=input$compare
+                                   ) })
+  
+
   output$plot <- renderHighchart({reactive_plot()})
   
   
@@ -89,7 +95,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'variable', 
                                       choices = choices, 
-                                      selected = choices
+                                      selected = head(choices, 1)
                  )
                })
   

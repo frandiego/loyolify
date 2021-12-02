@@ -15,3 +15,18 @@ library_dockerfile <- function(path){
     library(i, character.only = T)
   }
 }
+
+
+filter_vector <- function(df, filter){
+  filter %>%
+    map2(.x=names(.), .y=.,
+         .f = function(x, y) as.integer(df[[x]] %in% y)) %>% 
+    reduce(`*`) %>% as.logical()
+}
+
+
+filter_vector_diff_element <- function(df, filter, element){
+  diff= setdiff(unique(df[[element]]), unique(filter[[element]]))
+  filter[[element]] <- diff[!is.na(diff)]
+  filter_vector(df, filter)
+}
