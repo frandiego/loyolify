@@ -35,13 +35,14 @@ create_consistencia <- function(df){
      .(consistencia = 1-as.integer(any(n_check == -1))), 
      by = c(key, 'type')] %>% 
     .[, consistencia := sum(consistencia, na.rm = T), 
-      by = c(key)] -> dtcon
+      by = c(key)] %>% unique()-> dtcon
   
-  dt[variable == 'probabilidad__f' & n==1, c(key), with=F] %>% 
-    merge(dt[variable == 'probabilidad__a' & n == 0, c(key), with=F]) %>% 
-    .[, check := 1] -> dtcheck
+  dt_l = dt[variable == 'probabilidad__f' & n==1, get(key)] %>% unique()
+  dt_r = dt[variable == 'probabilidad__a' & n==0, get(key)] %>% unique()
   
-  
+  intersect(dt_l, dt_r) %>% data.table() %>% 
+    setnames(names(.), key) %>% .[, check:= 1] -> dtcheck
+
   dtcon %>% merge(dtcheck, by =c(key), all = T) %>% 
     .[is.na(check), check := 0] %>% 
     .[, y := consistencia + check] %>% 
@@ -101,20 +102,21 @@ create_creatividad <- function(df){
   dt %>% melt('alumno_id') %>% 
     .[, c('min', 'max') := list(min(value), max(value)), by = .(alumno_id)] %>% 
     .[, std := (value - min) / (max- min)] %>% 
-    .[, .(n = sum(std)), by = .(alumno_id)] %>% 
-    .[['n']] -> x
-  x[is.na(x)] = 0
-  y = x
-  xm = mean(x)
-  maxx = max(x)
-  y[x<=1] = 0 
-  y[x<=xm & x>1] = 1
-  y[y==maxx] = 3
-  y[y>=xm & y<3] = 2
+    .[, .(n = sum(std)), by = .(alumno_id)] -> dtm
   
-  dt[['y']] = y
-  dt[['variable']] = 'creatividad'
-  dt[, c('alumno_id', 'variable', 'y')] %>% .[]
+  
+  nmean <- mean(dtm[['n']], na.rm = T)
+  nmax <- max(dtm[['n']], na.rm = T)
+  
+  dtm[is.na(n), n:= 0]
+  
+  dtm[, y := fcase(n<=1, 0, 
+                   n<nmean & n>1, 1, 
+                   n>=nmean & n<nmax, 2, 
+                   n==nmax, 3)]
+
+  dtm[['variable']] = 'creatividad'
+  dtm[, c('alumno_id', 'variable', 'y')] %>% unique() %>% .[]
   
 }
 

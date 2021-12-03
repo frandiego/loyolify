@@ -45,6 +45,9 @@ create_estrategia <- function(df){
   dttrick <- dt[variable == 'pensamiento_estrategico__d', -('ok')]
   dttrick[, variable := 'pensamiento_estrategico__c']
   setnames(dttrick, 'value', 'ok_trick')
+  
+  dttrick =  dttrick[,.(ok_trick =max(ok_trick, na.rm = T)), by = c("variable", key)]
+  
   merge(dt, dttrick, by = c('variable', key), all.x = T) -> dt
   dt <- dt[variable != 'pensamiento_estrategico__d']
   dt[!is.na(ok_trick), ok := ok_trick]

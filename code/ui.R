@@ -57,6 +57,9 @@ sidebar <- function(cnf) {
                          label = 'Variables', 
                          choices = c(''), 
                          multiple = F)
+    , uiOutput("upload_data_admin")
+    , uiOutput("update_data_admin")
+
     
     
   )

@@ -41,9 +41,9 @@ WORKDIR /srv/shiny-server/
   RUN rm -rf *
   COPY . .
 RUN mkdir -p data 
+RUN mkdir -p admin
 RUN chmod -R 777 data
-RUN mkdir -p admin 
-RUN chmod a+rw admin 
+RUN chmod a+rw admin admin/*
   
   
 # expose and show

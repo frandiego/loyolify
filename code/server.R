@@ -15,9 +15,38 @@ server <- function(input, output, session) {
     )
   )
   
-  print_auth <- reactive({reactiveValuesToList(auth_out)})
+  # upload data menu
+  upload_data_sidebar <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::fileInput(inputId = 'input_file', 
+                       label = '', 
+                       buttonLabel = 'Agregar Encuestas', 
+                       placeholder = '', 
+                       multiple = T, 
+                       accept = ".xlsx|.xls|.odt")
+      
+    }else{
+      div()
+    }
+  })
   
-  output$print_auth <- renderPrint({ print_auth() })
+  # update data 
+  update_data_admin <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton('update_data', 'Procesar')
+    }else{
+      div()
+    }
+  })
+  
+  
+  output$upload_data_admin <- renderUI({ upload_data_sidebar() })
+  output$update_data_admin <- renderUI({ update_data_admin() })
+  
+
+  
   
   
   # read data
@@ -132,7 +161,7 @@ server <- function(input, output, session) {
   # update schools
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
-                 data() %>% .[['school']] %>% unique() -> choices
+                 data() %>% .[['school']] %>% unique() %>% .[!is.na(.)] -> choices
                  label = ifelse(length(choices)>1, 'Centros', 'Centro')
                  updateSelectizeInput(session = session, 
                                       inputId = 'school', 
@@ -158,7 +187,7 @@ server <- function(input, output, session) {
   observeEvent(eventExpr = input$course, 
                handlerExpr = {
                  data() %>% .[course %in% input$course] %>% 
-                   .[['group']] %>% unique() %>% sort()-> choices
+                   .[['group']] %>% unique() %>% sort() %>% .[!is.na(.)] -> choices
                  names(choices) <- LETTERS[choices]
                  updateSelectizeInput(session = session, 
                                       inputId = 'group', 
@@ -170,7 +199,7 @@ server <- function(input, output, session) {
   # update sections
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
-                 data() %>% .[['section']] %>% unique() -> choices
+                 data() %>% .[['section']] %>% unique() %>% .[!is.na(.)] -> choices
                  names(choices) <- stringr::str_to_title(choices)
                  updateSelectizeInput(session = session, 
                                       inputId = 'section', 
@@ -183,7 +212,7 @@ server <- function(input, output, session) {
   observeEvent(eventExpr = input$section, 
                handlerExpr = {
                  data() %>% .[section %in% input$section] %>% 
-                   .[['variable']] %>% unique() -> choices
+                   .[['variable']] %>% unique() %>% .[!is.na(.)] -> choices
                  
                  names(choices) <- map_chr(choices, set_main_title)
                  
@@ -193,6 +222,31 @@ server <- function(input, output, session) {
                                       selected = head(choices, 1)
                  )
                })
+  
+  # update data
+  observeEvent(input$update_data, {
+    if (is.null(input$input_file)){
+      showNotification('No file Updated', duration = 10, type='error')
+    }else{
+      res <<- tidy_and_process_safe(input$input_file$datapath, cnf)
+    }
+  })
+  
+  res = F
+  observeEvent(res, {
+    showNotification("This is a notification.")
+    if(is.list(res)){
+      if(!is.null(res$error)){
+        shinyalert::shinyalert("Oops!", "Something went wrong.", type = "error")
+      }else{
+        shinyalert::shinyalert("OK", type = "success")
+      }
+    }
+  })
+  
+  
+  
+
   
 
   

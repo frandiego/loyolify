@@ -11,5 +11,6 @@ deploy <- function(config_path='config.yml', run=T){
   }
 }
 
-
 deploy(run = T)
+
+
