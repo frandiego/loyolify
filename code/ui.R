@@ -72,7 +72,13 @@ body <- function() {
     argonTabItems(
       argonTabItem(
         tabName = 'plot', 
-        
+        argonRow(argonColumn(uiOutput('main_title'), width = 12, center = T)),
+        argonRow(argonColumn(uiOutput('title'), width = 6), 
+                 argonColumn(uiOutput('title_comp'), width = 6)),
+        shiny::br(),
+        argonRow(argonColumn(uiOutput('subtitle_left'), width = 6, center = T), 
+                 argonColumn(uiOutput('subtitle_right'), width = 6, center = T)),
+        htmlOutput('plot'), 
         argonRow(
           argonColumn(with=6, 
                       shiny::selectizeInput(inputId = 'compare', 
@@ -85,7 +91,7 @@ body <- function() {
                                                            Repetidor = 'is_repeater', 
                                                            Popular = 'is_popular'),  
                                             multiple = F)
-                      ), 
+          ), 
           
           argonColumn(with=6, 
                       shiny::selectizeInput(inputId = 'facet', 
@@ -95,14 +101,7 @@ body <- function() {
                                                            Repetidor = 'is_repeater', 
                                                            Popular = 'is_popular'),  
                                             multiple = F)
-          )), 
-        argonRow(argonColumn(uiOutput('main_title'), width = 12, center = T)),
-        argonRow(argonColumn(uiOutput('title'), width = 6), 
-                 argonColumn(uiOutput('title_comp'), width = 6)),
-        shiny::br(),
-        argonRow(argonColumn(uiOutput('subtitle_left'), width = 6, center = T), 
-                 argonColumn(uiOutput('subtitle_right'), width = 6, center = T)),
-        htmlOutput('plot'), 
+          ))
       )
      )
     )

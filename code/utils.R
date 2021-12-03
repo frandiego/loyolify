@@ -35,3 +35,54 @@ filter_diff <- function(df, filter, element){
 filter_vector_diff_element <- function(df, filter, element){
   filter_vector(df, filter_diff(df, filter, element))
 }
+
+
+
+
+reset_database <- function(user, password, passphrase, path='credentials.sqlite',comment='school:'){
+  file.remove(path)
+  credentials <- data.frame(
+    user = c(user),
+    password = c(password),
+    group = c(NA),
+    comment = c(comment),
+    admin = c(TRUE),
+    stringsAsFactors = FALSE
+  )
+  
+  # Create credentials DB (only once)
+  create_db(
+    credentials_data = credentials, 
+    sqlite_path = path, 
+    passphrase = passphrase
+  )
+  
+}
+
+
+filter_comment <- function(df, comment){
+  comment %>% as.character() %>% 
+    strsplit(';') %>% 
+    unlist %>% 
+    .[.!=''] %>% 
+    .[grepl(':|=', .)]-> filters
+  if(length(filters)>0){
+    filters %>% 
+      strsplit(':|=') %>%  
+      map(trimws) %>% 
+      map(~list(name=head(.,1), value=tail(.,1))) %>% 
+      map(~list(name=.[['name']], 
+                value=strsplit(.[['value']], '-|,') %>% unlist() %>% trimws() %>% 
+                  paste0(collapse = ',') %>% paste0(' %in% c(', ., ')'))) %>% 
+      map(~paste0('(', .[['name']], .[['value']], ')')) %>% 
+      unlist() %>% paste0(collapse = ' & ') -> text_filter
+    df[eval(parse(text = text_filter))] %>% .[]
+  }else{
+    df %>% .[]
+  }
+}
+
+
+
+
+

@@ -72,4 +72,7 @@ deploy:
   dockerfile: Dockerfile
   codepath : code
   port: 8080
+  database: credentials.sqlite
+  passphrase: supersecret
+
   

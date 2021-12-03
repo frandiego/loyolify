@@ -1,8 +1,37 @@
 server <- function(input, output, session) {
   
+  # check_credentials directly on sqlite db
+  auth_out <- secure_server(
+    check_credentials = check_credentials(
+      db = normalizePath(cnf$deploy$database),
+      passphrase =  cnf$deploy$passphrase
+    ), timeout = 0, 
+    inputs_list = list(group = list(fun = "selectInput", 
+                                    args = list(choices = c("all", "restricted"), 
+                                                multiple = TRUE, 
+                                                selected = c("all", "restricted")
+                                    )
+    )
+    )
+  )
+  
+  print_auth <- reactive({reactiveValuesToList(auth_out)})
+  
+  output$print_auth <- renderPrint({ print_auth() })
+  
+  
   # read data
   there_is_data = F
-  data <- reactive({dt = read_data(cnf); there_is_data=T; dt %>% .[]})
+  data <- reactive({
+    users = reactiveValuesToList(auth_out)
+    
+    dt = read_data(cnf) %>% filter_comment(comment = users$comment)
+    
+    there_is_data<<-T
+    
+    dt %>% .[]
+    
+    })
   
   # sections
   sections <- reactive({ data() %>% .[['section']] %>% unique() })
@@ -104,8 +133,10 @@ server <- function(input, output, session) {
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
                  data() %>% .[['school']] %>% unique() -> choices
+                 label = ifelse(length(choices)>1, 'Centros', 'Centro')
                  updateSelectizeInput(session = session, 
                                       inputId = 'school', 
+                                      label = label, 
                                       choices = choices, 
                                       selected = choices
                  )
