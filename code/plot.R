@@ -123,6 +123,22 @@ title_comp <- function(main, x, selected = 'Seleccionado', notselected='Comparac
 }
 
 
+title_side <- function(division, is_left=T){
+  if(division %in% c('gender', 'is_repeater', 'is_popular')){
+    if(division == 'gender'){
+      return(ifelse(is_left, 'Mujer', 'Hombre'))
+    }
+    if(division=='is_repeater'){
+      return(ifelse(is_left, 'Repetidor', 'No Repetidor'))
+    }
+    if(division=='is_popular'){
+      return(ifelse(is_left, 'Popular', 'No Popular'))
+    }
+  }
+}
+
+
+
 set_main_title <- function(variable){
   variable = ifelse(variable == 'anímica', 'ánimo', variable)
   variable = ifelse(variable == 'alimenticia', 'alimentación', variable)

@@ -63,6 +63,29 @@ server <- function(input, output, session) {
   output$title_comp <- renderUI({reactive_title_comp()})
   output$title_facet <- renderUI({reactive_title_facet()})
   output$main_title <- renderUI({reavtive_main_title()})
+  
+  
+  
+  
+  # subtitles
+  reactive_title_facet_left <- reactive({
+    if(input$facet %in% c('gender', 'is_repeater', 'is_popular')){
+      HTML(paste0('<b>', title_side(input$facet, is_left = T), '</b>'))
+    }else{
+      div()
+    }
+  })
+  
+  reactive_title_facet_rigth <- reactive({
+    if(input$facet %in% c('gender', 'is_repeater', 'is_popular')){
+      HTML(paste0('<b>', title_side(input$facet, is_left = F), '</b>'))
+    }else{
+      div()
+    }
+  })
+  
+  output$subtitle_left <- renderUI({ reactive_title_facet_left() })
+  output$subtitle_right <- renderUI({ reactive_title_facet_rigth() })
  
   
   # plot

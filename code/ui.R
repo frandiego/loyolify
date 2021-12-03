@@ -97,13 +97,12 @@ body <- function() {
                                             multiple = F)
           )), 
         argonRow(argonColumn(uiOutput('main_title'), width = 12, center = T)),
-        argonRow(argonColumn(uiOutput('title'), width = 4), 
-                 argonColumn(uiOutput('title_comp'), width = 4), 
-                 argonColumn(uiOutput('title_facet'), width = 4)),
+        argonRow(argonColumn(uiOutput('title'), width = 6), 
+                 argonColumn(uiOutput('title_comp'), width = 6)),
         shiny::br(),
-        argonRow(),
+        argonRow(argonColumn(uiOutput('subtitle_left'), width = 6, center = T), 
+                 argonColumn(uiOutput('subtitle_right'), width = 6, center = T)),
         htmlOutput('plot'), 
-        tableOutput('data')
       )
      )
     )
