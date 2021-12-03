@@ -30,7 +30,7 @@ sidebar <- function(cnf) {
     
     # schools
     shiny::selectizeInput(inputId = 'school', 
-                          label = 'Colegios', 
+                          label = 'Centros', 
                           choices = c(''), 
                           multiple = T), 
     
@@ -56,7 +56,11 @@ sidebar <- function(cnf) {
     shiny::selectizeInput(inputId = 'variable', 
                          label = 'Variables', 
                          choices = c(''), 
-                         multiple = T)
+                         multiple = F)
+    , uiOutput("upload_data_admin")
+    , uiOutput("update_data_admin")
+
+    
     
   )
   
@@ -71,14 +75,40 @@ body <- function() {
     argonTabItems(
       argonTabItem(
         tabName = 'plot', 
-        argonRow(uiOutput('title')),
+        argonRow(argonColumn(uiOutput('main_title'), width = 12, center = T)),
+        argonRow(argonColumn(uiOutput('title'), width = 6), 
+                 argonColumn(uiOutput('title_comp'), width = 6)),
         shiny::br(),
-        argonRow(),
-        highchartOutput('plot')
-        
+        argonRow(argonColumn(uiOutput('subtitle_left'), width = 6, center = T), 
+                 argonColumn(uiOutput('subtitle_right'), width = 6, center = T)),
+        htmlOutput('plot'), 
+        argonRow(
+          argonColumn(with=6, 
+                      shiny::selectizeInput(inputId = 'compare', 
+                                            label = 'Comparar', 
+                                            choices = list(No='No', 
+                                                           Centro='school', 
+                                                           Curso = 'course', 
+                                                           Grupo = 'group', 
+                                                           Género = 'gender', 
+                                                           Repetidor = 'is_repeater', 
+                                                           Popular = 'is_popular'),  
+                                            multiple = F)
+          ), 
+          
+          argonColumn(with=6, 
+                      shiny::selectizeInput(inputId = 'facet', 
+                                            label = 'Dividir', 
+                                            choices = list(No='No', 
+                                                           Género = 'gender', 
+                                                           Repetidor = 'is_repeater', 
+                                                           Popular = 'is_popular'),  
+                                            multiple = F)
+          ))
       )
+     )
     )
-  )
+  
 }
 
 

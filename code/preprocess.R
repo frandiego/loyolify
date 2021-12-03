@@ -22,11 +22,17 @@ preprocess_read_tidy <- function(path){
 preprocess_filter <- function(cnf){
   columns = cnf$preprocess$columns
   path = cnf$tidy$output_path
-  path %>% get_filenames %>% file.path(path, .) %>% 
-    map(preprocess_read_tidy) %>% 
+  path %>% list.files(full.names = T, pattern = '.RDS') -> ls
+  ls %>% map(preprocess_read_tidy) -> dtl
+  ls %>% map_chr(~basename(.) %>% strsplit('_') %>% unlist %>% head(1)) -> times
+  map2(.x=dtl, .y=times, .f = function(x, y) x[, timestamp := y]) -> dtl
+  dtl %>% 
     data.table::rbindlist(fill = T) %>% 
-    .[, columns, with=F] %>% 
-    .[]
+    .[, c(columns, 'timestamp'), with=F] -> df
+  df[, timestamp := as.double(timestamp)]
+  df[, max_timestamp := max(timestamp), by = .(alumno_id, estudio, curso, grupo)]
+  df[timestamp==max_timestamp, c(columns), with=F] %>% unique()
+  return(list(data=df, files=ls))
 }
 
 preprocess_variables <- function(df){
@@ -76,28 +82,106 @@ find_repetidor <- function(df){
 }
 
 
-preprocess <- function(cnf){
-  df = preprocess_filter(cnf)
+preprocess_read_last <- function(cnf){
+  cnf$preprocess$output_path %>% 
+    list.files() %>% 
+    map_dbl(~strsplit(., '_') %>% unlist %>% head(1) %>% as.double) %>% 
+    .[!is.na(.)] %>% 
+    which.max() %>% 
+    list.files(cnf$preprocess$output_path, full.names = 1)[.] %>% 
+    readRDS() %>% 
+    unique() %>% 
+    as.data.table()
+}
+
+preprocess_new_files <- function(cnf){
+  cnf$preprocess$output_path %>% 
+    file.path('files.RDS') %>% 
+    readRDS() %>% 
+    .[['file']] %>% unique() %>% 
+    setdiff(list.files(cnf$tidy$output_path, full.names = T), .)
+}
+
+
+
+preprocess_data <- function(df){
   dfvars = preprocess_variables(df)
   dfgroups = preprocess_group(df)
   dfpopu = dfvars[variable == 'relacional', .(is_popular = as.integer(y!=0)), by = .(uid)]
   dfgroups = dfgroups %>% merge(dfpopu, by = 'uid', all.x = T)
   df_rep = find_repetidor(df)
   dfgroups = dfgroups %>% merge(df_rep, by = 'uid', all.x = T)
-  
+  chars = setdiff(names(dfgroups), c('uid', 'school', 'course', 'group'))
+  dfvars = unique(dfvars[!is.na(y)])
+  dfgroups = unique(dfgroups[uid %in% unique(dfvars[, uid])])
+  dfgroups[, n_value := dfgroups[, c(chars), with=F] %>% reduce(`+`)]
   cols = unique(c(colnames(dfgroups), colnames(dfvars)))
+  dfgroups[, n_na := dfgroups %>% map(is.na) %>% reduce(`+`)]
+  dfgroups[, max_value := max(n_value, na.rm = T), by = .(uid)]
+  dfgroups[, min_n_na := min(n_na, na.rm = T), by = .(uid)]
+  dfgroups = dfgroups[n_na == min_n_na]
+  dfgroups = dfgroups[n_value == max_value]
+  dfgroups[, n_uid := .N, by = .(uid)]
+  dfgroups[, nuid := 1:.N, by = .(uid)]
+  dfgroups = dfgroups[nuid==1]
+  
   dfvars %>% merge(dfgroups, by = c('uid'), all.x = T) %>% 
     .[, c(cols), with=F] %>% unique() -> dfprep
+  timestamp = format(Sys.time(), "%Y%m%d%H%M%S")
+  dfprep[, timestamp := timestamp]
+  return(dfprep)
   
-  filename = paste0(format(Sys.time(), "%Y%m%d%H%M%S"), '_prep'  ,".RDS")
-  saveRDS(dfprep, file.path(cnf$preprocess$output_path, filename))
+}
+
+save_files <- function(ls_new){
+  cnf$preprocess$output_path %>% 
+    file.path('files.RDS') %>% 
+    readRDS() %>% 
+    list(., data.table(file=ls_new)) %>% 
+    rbindlist() %>% 
+    unique() %>% 
+    saveRDS(file.path(cnf$preprocess$output_path, 'files.RDS'))
+}
+
+
+
+
+
+preprocess <- function(cnf, get_data=F){
+  df = preprocess_read_last(cnf)
+  ls_new = preprocess_new_files(cnf)
+  df_new =  ls_new %>%  map(readRDS) %>% rbindlist(fill = T)
+  if(nrow(df_new)>1){
+    df_new_prep = preprocess_data(df_new)
+    df = rbindlist(list(df, df_new_prep), use.names =T, fill = T)
+    df[is.na(timestamp), timestamp := 0]
+    df[, c('max_ts', 'nuid') := list(max(timestamp, na.rm = T), .N), by = .(uid, school, course, group)]
+    df = df[timestamp == max_ts]
+    save_files(ls_new)
+    df = unique(df[, -c('max_ts', 'nuid'), with=F])
+    filename = paste0(df[, max(timestamp)], '_prep'  ,".RDS")
+    saveRDS(df, file.path(cnf$preprocess$output_path, filename))
+  }
+  if(get_data){
+    return(df)
+  }
 }
 
 
 read_data <- function(cnf){
   ls= list.files(cnf$preprocess$output_path)
-  ls_num = map_dbl(ls, ~strsplit(., '_') %>% unlist %>% head(1) %>% as.numeric)
+  ls_num = map_dbl(ls, ~strsplit(., '_') %>% unlist %>% .[!grepl('.RDS', .)] %>% ifelse(length(.)==0, 0, .) %>% as.numeric)
   file = ls[which(ls_num == max(ls_num))]
   readRDS(file.path(cnf$preprocess$output_path, file))
 }
+
+
+
+
+tidy_and_process <- function(input_files, cnf){
+  tidy(input_files = input_files, cnf = cnf)
+  preprocess(cnf)
+}
+
+tidy_and_process_safe <- purrr::safely(tidy_and_process)
 

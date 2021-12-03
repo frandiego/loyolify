@@ -5,7 +5,9 @@
 create_prosocial  <- function(df){
   key = c('alumno_id')
   variables = paste0('pensamiento_estrategico_dinero__', head(letters, 3))
+  variables = gsub('__', '_', variables)
   df_ok = data.table::data.table(variable = variables, correct = c('b','a','b'))
+  names(df) <-gsub('__', '_',  names(df))
   df[, c(key, variables), with=F] %>% 
     melt(key) %>% 
     .[, value := gsub('[^a-z]', '', tolower(value))] %>% 

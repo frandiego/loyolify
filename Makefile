@@ -1,9 +1,9 @@
-ROJECT_ID:= bank-306009
-SERVICE_NAME:=dashboard-dev
-IMAGE:=gcr.io/${ROJECT_ID}/${SERVICE_NAME}
-REGION:=europe-north1
-INSTANCES:=2
-MEMORY:= 5G
+ROJECT_ID:= dashbaord-331416
+SERVICE_NAME:= loyolify
+IMAGE:= gcr.io/${ROJECT_ID}/${SERVICE_NAME}
+REGION:= europe-north1
+INSTANCES:= 1
+MEMORY:= 2G
 SERVICE_ACCOUNT:= loyolify
 
 build: 
