@@ -7,7 +7,6 @@ deploy <- function(config_path='config.yml', run=T){
   if(run==T){
     shinyApp(
       ui = shinymanager::secure_app(ui=ui(cnf), enable_admin = T), 
-      #ui = ui(cnf), 
       server = server, 
       options = list(port=cnf$deploy$port))
   }

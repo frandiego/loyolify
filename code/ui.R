@@ -173,6 +173,7 @@ body <- function() {
           argonColumn(width = 1, 
                       uiOutput("admin_dataset_create")
           )
+          
         ), 
         argonRow(
           argonColumn(width = 3, 
@@ -180,6 +181,10 @@ body <- function() {
           ), 
           argonColumn(width = 3, 
                       uiOutput("admin_files_delete_check"), 
+                      
+          ), 
+          argonColumn(width = 3, 
+                      tableOutput("admin_dataset_content"), 
                       
           )
         )

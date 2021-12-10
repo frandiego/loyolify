@@ -187,32 +187,31 @@ server <- function(input, output, session) {
   admin_dataset_content <- reactive({
     auth_out_list = reactiveValuesToList(auth_out)
     if(as.logical(auth_out_list$admin)){
-        # read_prep_file(input$admin_dataset_list, cnf) %>% 
-        #   .[, c('school', 'course', 'group'), with=F] %>% 
-        #   unique() %>% 
-        #   .[, group := factor(group, levels = 1:length(LETTERS), labels = LETTERS)] %>% 
-        #   .[] 
+
       input$admin_dataset_list %>% 
         file.path(cnf$preprocess$output_path,. ) %>% 
         paste0(., '.RDS') %>% 
         readRDS() %>% 
+        as.data.table() %>% 
         .[, c('school', 'course', 'group'), with=F] %>% 
         unique() %>% 
         .[!is.na(school)] %>% 
-        .[, file := input$admin_dataset_list] %>% 
-        renderTable()
+        .[, group := factor(group, levels=1:length(LETTERS), labels = LETTERS)] %>% 
+        .[, file := as.character(input$admin_dataset_list)] %>% 
+        as.data.frame()
     }else{
-      div() %>% renderUI()
+      data.frame()
     }
   })
     
   output$admin_dataset_title <- renderUI({ admin_dataset_title() })
   output$admin_dataset_create <- renderUI({ admin_dataset_create() })
   output$admin_dataset_list <- renderUI({ admin_dataset_list() })
-  output$admin_dataset_content <- renderUI({admin_dataset_content() })
+  
   output$admin_dataset_delete <- renderUI({admin_dataset_delete() })
   output$admin_dataset_update <- renderUI({ admin_dataset_update() })
 
+  output$admin_dataset_content <- renderTable({admin_dataset_content() })
   
   
 
