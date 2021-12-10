@@ -84,5 +84,28 @@ filter_comment <- function(df, comment){
 
 
 
+list_time <- function(path){
+  path %>% 
+    list.files(full.names = T) %>% 
+    map(~as.data.table(file.info(.), keep.rownames = T)) %>% 
+    rbindlist()
+}
+
+
+last_choices <- function(path, n){
+  list_time(path) %>% 
+    setkey('atime') %>% 
+    tail(n) %>% 
+    .[order(-atime)] %>% 
+    .[['rn']] %>% 
+    map_chr(basename) %>% 
+    map_chr(~head(unlist(strsplit(., '.RDS')), 1)) 
+}
+
+
+last_prep_file <- function(cnf){
+  file.path(cnf$preprocess$output_path, paste0(last_choices(cnf$preprocess$output_path, 1), '.RDS'))
+}
+
 
 

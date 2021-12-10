@@ -56,11 +56,13 @@ sidebar <- function(cnf) {
     shiny::selectizeInput(inputId = 'variable', 
                          label = 'Variables', 
                          choices = c(''), 
-                         multiple = F)
-    , uiOutput("upload_data_admin")
-    , uiOutput("update_data_admin")
+                         multiple = F), 
+    argonSidebarMenu(
+      uiOutput("upload_data_admin"), 
+      uiOutput('update_data_name'), 
+      uiOutput("update_data_admin")
+    )
 
-    
     
   )
   
@@ -68,6 +70,7 @@ sidebar <- function(cnf) {
 
   
 }
+
 
 
 body <- function() {
@@ -104,13 +107,17 @@ body <- function() {
                                                            Repetidor = 'is_repeater', 
                                                            Popular = 'is_popular'),  
                                             multiple = F)
-          ))
+          )
+          ), 
+        argonRow(argonColumn(uiOutput('admin_tidy_number'), width = 4),
+                 argonColumn(uiOutput('admin_tidy_list'), width = 4),
+                 argonColumn(uiOutput('admin_tidy_process'), width = 4))
+        
       )
      )
     )
   
 }
-
 
 ui <- function(cnf) {
   return(argonDashPage(

@@ -23,7 +23,7 @@ server <- function(input, output, session) {
                        label = '', 
                        buttonLabel = 'Agregar Encuestas', 
                        placeholder = '', 
-                       multiple = T, 
+                       multiple = F, 
                        accept = ".xlsx|.xls|.odt")
       
     }else{
@@ -41,10 +41,66 @@ server <- function(input, output, session) {
     }
   })
   
+  # update data 
+  update_data_name <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::textInput(inputId = 'tidy_name', label = 'Nombre del Archivo')
+    }else{
+      div()
+    }
+  })
+  
+  # admin list data
+  admin_tidy_number <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      
+      shiny::textInput(
+        inputId = 'tidy_number', 
+        label = 'Número de archivos en los que buscar', 
+        value = '10', 
+        width = '100%')
+
+      
+    }else{
+      div()
+    }
+  })
+  
+  admin_tidy_list <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      
+      last_choices(cnf$tidy$output_path, as.numeric(input$tidy_number)) -> choices
+      shiny::selectInput(inputId = 'tidy_files', 
+                         label = 'Archivos para actualizar', 
+                         choices = choices, 
+                         selected = choices,
+                         multiple = T, selectize = T)
+
+    }else{
+      div()
+    }
+  })
+
+  admin_tidy_process <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton('admin_tidy_process', 'Actualizar Datos')
+    }else{
+      div()
+    }
+  })
+  
+  
   
   output$upload_data_admin <- renderUI({ upload_data_sidebar() })
+  output$update_data_name <- renderUI({ update_data_name() })
   output$update_data_admin <- renderUI({ update_data_admin() })
-  
+  output$admin_tidy_number <- renderUI({ admin_tidy_number()  })
+  output$admin_tidy_list <- renderUI({ admin_tidy_list()  })
+  output$admin_tidy_process <- renderUI({ admin_tidy_process() })
 
   
   
@@ -54,7 +110,7 @@ server <- function(input, output, session) {
   data <- reactive({
     users = reactiveValuesToList(auth_out)
     
-    dt = read_data(cnf) %>% filter_comment(comment = users$comment)
+    dt = read_preprocess(cnf) %>% filter_comment(comment = users$comment)
     
     there_is_data<<-T
     
@@ -158,6 +214,8 @@ server <- function(input, output, session) {
   output$plot <- renderUI({reactive_plot()})
   
   
+
+  
   # update schools
   observeEvent(eventExpr = there_is_data, 
                handlerExpr = {
@@ -228,26 +286,32 @@ server <- function(input, output, session) {
     if (is.null(input$input_file)){
       showNotification('No file Updated', duration = 10, type='error')
     }else{
-      res <<- tidy_and_process_safe(input$input_file$datapath, cnf)
+      tidy_unique_file(input$input_file$datapath, input$tidy_name, cnf)
+      last_choices(cnf$tidy$output_path, as.numeric(input$tidy_number)) -> choices
+      updateSelectInput(session = session, 
+                        inputId = 'tidy_files',
+                        choices = choices, 
+                        selected = choices)
     }
+    
+    
+  
   })
   
-  res = F
-  observeEvent(res, {
-    showNotification("This is a notification.")
-    if(is.list(res)){
-      if(!is.null(res$error)){
-        shinyalert::shinyalert("Oops!", "Something went wrong.", type = "error")
-      }else{
-        shinyalert::shinyalert("OK", type = "success")
-      }
+  # update data
+  observeEvent(input$admin_tidy_process, {
+    res = preprocess_paths_safe(input$tidy_files, cnf)
+    if(!is.null(res$error)){
+      # argonModal(
+      #   id = "modal1",
+      #   title = "Error",
+      #   status = "danger",
+      #   gradient = TRUE,
+      #   as.character(res$error)
+      # )
+      showNotification()
     }
   })
-  
-  
-  
 
-  
 
-  
 }

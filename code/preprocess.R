@@ -185,3 +185,24 @@ tidy_and_process <- function(input_files, cnf){
 
 tidy_and_process_safe <- purrr::safely(tidy_and_process)
 
+
+preprocess_paths <- function(paths, cnf){
+  paths %>% 
+    file.path(cnf$tidy$output_path, .) %>% 
+    paste0('.RDS') %>% 
+    map(readRDS) %>% 
+    rbindlist(fill = T) %>% 
+    preprocess_data %>% 
+    saveRDS(file.path(cnf$preprocess$output_path, 
+                      format(Sys.time(), "%Y%m%d%H%M%S.RDS")))
+} 
+
+preprocess_paths_safe <- purrr::safely(preprocess_paths)
+
+
+read_preprocess <- function(cnf){
+  readRDS(last_prep_file(cnf)) %>% 
+    .[!is.na(school)] %>% 
+    unique()
+}
+
