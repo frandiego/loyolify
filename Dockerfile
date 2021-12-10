@@ -33,6 +33,7 @@ RUN R -e "remotes::install_version('argonR', version='0.2.0')"
 RUN R -e "remotes::install_version('argonDash', version='0.2.0')"
 RUN R -e "remotes::install_version('stringr', version='1.4.0')"
 RUN R -e "remotes::install_version('shinymanager', version='1.0.400')"
+RUN R -e "remotes::install_version('shinyWidgets', version='0.6.2')"
 
 # config and code
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf

@@ -82,6 +82,15 @@ filter_comment <- function(df, comment){
   }
 }
 
+lslatr <- function(path){
+  path %>% 
+    list.files(full.names = T) %>%
+    file.info() %>% 
+    as.data.table(keep.rownames = T) %>% 
+    .[order(-mtime)] 
+}
+
+
 
 
 

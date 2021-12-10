@@ -15,38 +15,198 @@ server <- function(input, output, session) {
     )
   )
   
-  # upload data menu
-  upload_data_sidebar <- reactive({
+  # Survey
+  admin_upload_data_title <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::h1('Nueva Encuesta')
+    }else{
+      div()
+    }
+  })
+  
+  admin_upload_data_select <- reactive({
     auth_out_list = reactiveValuesToList(auth_out)
     if(as.logical(auth_out_list$admin)){
       shiny::fileInput(inputId = 'input_file', 
                        label = '', 
-                       buttonLabel = 'Agregar Encuestas', 
+                       buttonLabel = 'Agregar', 
                        placeholder = '', 
-                       multiple = T, 
+                       multiple = F, 
                        accept = ".xlsx|.xls|.odt")
       
     }else{
       div()
     }
   })
-  
-  # update data 
-  update_data_admin <- reactive({
+
+  admin_upload_data_name <- reactive({
     auth_out_list = reactiveValuesToList(auth_out)
     if(as.logical(auth_out_list$admin)){
-      shiny::actionButton('update_data', 'Procesar')
+      shiny::textInput(inputId = 'update_data_name', label='', placeholder = 'Nombre')
+    }else{
+      div()
+    }
+  })
+  
+  admin_upload_data_process <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton('update_data', 'Cargar')
+    }else{
+      div()
+    }
+  })
+  
+  output$admin_upload_data_title <- renderUI({ admin_upload_data_title() })
+  output$admin_upload_data_select <- renderUI({ admin_upload_data_select() })
+  output$admin_upload_data_name <- renderUI({ admin_upload_data_name() })
+  output$admin_upload_data_process <- renderUI({ admin_upload_data_process() })
+  
+  # Files
+  admin_files_title <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::h1('Encuestas')
+    }else{
+      div()
+    }
+  })
+  admin_files_list <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      cnf$tidy$output_path %>% lslatr() %>% .[['rn']] %>% 
+        basename() %>% gsub('.RDS$', '', .) -> choices
+      shiny::selectInput(
+        inputId = 'admin_list_tidy_files', 
+        label = '', 
+        choices = choices, 
+        selected = choices, 
+        multiple = T
+      )
+    }else{
+      div()
+    }
+  })
+  admin_files_delete <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton(inputId = 'delete', label = 'Eliminar')
+    }else{
+      div()
+    }
+  })
+  admin_files_delete_check <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::textInput(inputId = 'check', label = '', value = '', placeholder = 'Seguro?')
+      
+    }else{
+      div()
+    }
+  })
+  output$admin_files_title <- renderUI({ admin_files_title() })
+  output$admin_files_list <- renderUI({ admin_files_list() })
+  output$admin_files_delete <- renderUI({ admin_files_delete() })
+  output$admin_files_delete_check <- renderUI({ admin_files_delete_check() })
+  
+  
+  
+  # Dataset
+  admin_dataset_title <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::h1('Datasets')
+    }else{
+      div()
+    }
+  })
+  
+  admin_dataset_create <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton(inputId = 'create', label = 'Procesar')
+    }else{
+      div()
+    }
+  })
+
+  admin_dataset_list <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      cnf$preprocess$output_path %>% 
+        list.files() %>% 
+        .[grepl('^Dataset', .)] %>% 
+        gsub('.RDS$', '', .) %>% 
+        unique() %>% 
+        sort(T) -> choices
+      shiny::selectInput(
+        inputId = 'admin_dataset_list', 
+        label = '', 
+        choices = choices, 
+        selected = head(choices, 1), 
+        multiple = F
+      )
     }else{
       div()
     }
   })
   
   
-  output$upload_data_admin <- renderUI({ upload_data_sidebar() })
-  output$update_data_admin <- renderUI({ update_data_admin() })
+  admin_dataset_delete <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton(inputId = 'delete_dataset', label = 'Eliminar')
+    }else{
+      div()
+    }
+  })
+  
+  admin_dataset_delete_check <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::textInput(inputId = 'dataset_check', label = '', value = '', placeholder = 'Seguro?')
+      
+    }else{
+      div()
+    }
+  })
   
 
   
+  
+  admin_dataset_content <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+        # read_prep_file(input$admin_dataset_list, cnf) %>% 
+        #   .[, c('school', 'course', 'group'), with=F] %>% 
+        #   unique() %>% 
+        #   .[, group := factor(group, levels = 1:length(LETTERS), labels = LETTERS)] %>% 
+        #   .[] 
+      input$admin_dataset_list %>% 
+        file.path(cnf$preprocess$output_path,. ) %>% 
+        paste0(., '.RDS') %>% 
+        readRDS() %>% 
+        .[, c('school', 'course', 'group'), with=F] %>% 
+        unique() %>% 
+        .[!is.na(school)] %>% 
+        .[, file := input$admin_dataset_list] %>% 
+        renderTable()
+    }else{
+      div() %>% renderUI()
+    }
+  })
+    
+  output$admin_dataset_title <- renderUI({ admin_dataset_title() })
+  output$admin_dataset_create <- renderUI({ admin_dataset_create() })
+  output$admin_dataset_list <- renderUI({ admin_dataset_list() })
+  output$admin_dataset_content <- renderUI({admin_dataset_content() })
+  output$admin_dataset_delete <- renderUI({admin_dataset_delete() })
+     
+
+  
+  
+
   
   
   # read data
@@ -179,7 +339,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'course', 
                                       choices = choices, 
-                                      selected = head(choices, round(length(choices) / 2))
+                                      selected = choices
                  )
                })
   
@@ -192,7 +352,7 @@ server <- function(input, output, session) {
                  updateSelectizeInput(session = session, 
                                       inputId = 'group', 
                                       choices = choices, 
-                                      selected = head(choices, round(length(choices) / 2))
+                                      selected = choices
                  )
                })
   
@@ -228,26 +388,112 @@ server <- function(input, output, session) {
     if (is.null(input$input_file)){
       showNotification('No file Updated', duration = 10, type='error')
     }else{
-      res <<- tidy_and_process_safe(input$input_file$datapath, cnf)
-    }
-  })
-  
-  res = F
-  observeEvent(res, {
-    showNotification("This is a notification.")
-    if(is.list(res)){
-      if(!is.null(res$error)){
-        shinyalert::shinyalert("Oops!", "Something went wrong.", type = "error")
+      res <<- tidy_unique_file_safe(input$input_file$datapath, input$update_data_name, cnf)
+      if (!is.null(res$error)){
+        showNotification(as.character(res$error), duration = 10, type='error')
       }else{
-        shinyalert::shinyalert("OK", type = "success")
+        showNotification('Nueva encuesta añadida')
+        cnf$tidy$output_path %>% lslatr() %>% .[['rn']] %>% 
+          basename() %>% gsub('.RDS$', '', .) -> choices
+        updateSelectInput(
+          session = session, 
+          inputId = 'admin_list_tidy_files',
+          choices = choices, 
+          selected = choices
+        )
+        
       }
     }
   })
   
+  # eliminar
+  observeEvent(input$delete, {
+    if (input$check != 'eliminar'){
+      showNotification("Estas seguro? Es irreversible.  Escribe: 'eliminar'", duration = 10, type='error')
+    }else{
+      input$admin_list_tidy_files %>% 
+        paste0('.RDS') %>% 
+        file.path(cnf$tidy$output_path, .) %>% 
+        file.remove()
+      showNotification('Encuestas eliminadas')
+      cnf$tidy$output_path %>% lslatr() %>% .[['rn']] %>% 
+        basename() %>% gsub('.RDS$', '', .) -> choices
+      updateSelectInput(
+        session = session, 
+        inputId = 'admin_list_tidy_files',
+        choices = choices, 
+        selected = choices
+      )
+      updateTextInput(session = session, inputId = 'check', value = '')
+    }
+  })
   
+  # eliminar
+  observeEvent(input$delete_dataset, {
+    if (input$dataset_check != 'eliminar'){
+      showNotification("Estas seguro? Es irreversible.  Escribe: 'eliminar'", duration = 10, type='error')
+    }else{
+      input$admin_dataset_list %>% 
+        paste0(., '.RDS') %>% 
+        file.path(cnf$preprocess$output_path, .) %>% 
+        file.remove()
+      showNotification('Dataset Eliminado')
+      cnf$preprocess$output_path %>% 
+        list.files() %>% 
+        .[grepl('^Dataset', .)] %>% 
+        gsub('.RDS$', '', .) %>% 
+        unique() %>% 
+        sort(T) -> choices
+      updateSelectInput(
+        session = session, 
+        inputId = 'admin_dataset_list',
+        choices = choices, 
+        selected = head(choices, 1)
+      )
+      updateTextInput(session = session, inputId = 'dataset_check', value = '')
+    }
+  })
   
 
   
+  # eliminar
+  observeEvent(input$create, {
+    if (input$check != 'procesar'){
+      showNotification("Estas seguro? Escribe: 'procesar'", duration = 10, type='error')
+    }else{
+      input$admin_list_tidy_files %>% 
+        paste0('.RDS') %>% 
+        file.path(cnf$tidy$output_path, .) %>% 
+        preprocess_paths_safe(., cnf) -> res
+      if(!is.null(res$error)){
+        showNotification(as.character(res$error), duration = 10, type='error')
+      }else{
+        showNotification('Nuevo dataset añadido')
+        cnf$preprocess$output_path %>% 
+          list.files() %>% 
+          .[grepl('^Dataset', .)] %>% 
+          gsub('.RDS$', '', .) %>% 
+          unique() %>% 
+          sort(T) -> choices
+        updateSelectInput(
+          session = session, 
+          inputId = 'admin_dataset_list',
+          choices = choices, 
+          selected = head(choices,1)
+        )
+        
+        updateTextInput(session = session, inputId = 'check', value = '')
+  
+        
+      }
+      
+    }
+  }
+)
+    
 
+  
+  
+ 
   
 }

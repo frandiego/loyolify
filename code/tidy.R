@@ -59,3 +59,35 @@ tidy <- function(input_files, cnf) {
   input_files %>% walk(~tidy_file(., cnf))
 }
 
+
+
+tidy_unique_file <- function(intput_path, output_name,  cnf, out=c('', NA)){
+  msg = "Es necesario un nombre de archivo"
+  if(!is.null(output_name)){
+    if(output_name!=''){
+      df = readxl::read_excel(intput_path, skip = 1)
+      df = data.table::as.data.table(df)
+      columns = names(df)[which(gsub("[^a-z]", "", tolower(names(df))) != "")]
+      clean_cols = map_chr(columns, clean_colname)
+      df = df[, c(columns), with = F]
+      setnames(df, columns, clean_cols)
+      df <- df[, .SD, .SDcols = unique(names(df))]
+      clean_cols = unique(clean_cols)
+      
+      df = df[, `:=`(c(clean_cols),
+                     map(.SD, ~guess_column(.,
+                                            funs = cnf$tidy$guess_functions,
+                                            out=out))),
+              .SDcols = c(clean_cols)]
+      df <- df[, c(cnf$preprocess$columns), with=F]
+      saveRDS(df, file.path(cnf$tidy$output_path, paste0(output_name, '.RDS')))
+    }else{
+      stop(msg)
+    }
+  }else{
+    stop(msg)
+  }
+}
+
+tidy_unique_file_safe <- purrr::safely(tidy_unique_file)
+

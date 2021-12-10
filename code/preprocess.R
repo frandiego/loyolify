@@ -169,10 +169,11 @@ preprocess <- function(cnf, get_data=F){
 
 
 read_data <- function(cnf){
-  ls= list.files(cnf$preprocess$output_path)
-  ls_num = map_dbl(ls, ~strsplit(., '_') %>% unlist %>% .[!grepl('.RDS', .)] %>% ifelse(length(.)==0, 0, .) %>% as.numeric)
-  file = ls[which(ls_num == max(ls_num))]
-  readRDS(file.path(cnf$preprocess$output_path, file))
+  cnf$preprocess$output_path %>% 
+    lslatr %>% 
+    head(1) %>% 
+    .[['rn']] %>% 
+    readRDS()
 }
 
 
@@ -185,3 +186,24 @@ tidy_and_process <- function(input_files, cnf){
 
 tidy_and_process_safe <- purrr::safely(tidy_and_process)
 
+
+preprocess_paths <- function(paths, cnf){
+  paths %>% 
+    map(readRDS) %>% 
+    rbindlist(fill = T) %>% 
+    preprocess_data %>% 
+    saveRDS(file.path(cnf$preprocess$output_path, 
+                      format(Sys.time(), "Dataset - %Y-%m-%d_%H:%M:%S.RDS")))
+} 
+
+preprocess_paths_safe <- purrr::safely(preprocess_paths)
+
+
+
+read_prep_file <- function(file, cnf){
+  cnf$preprocess$output_path %>% 
+    file.path(., file) %>% 
+    readRDS() %>% 
+    .[!is.na(school)] %>% 
+    .[]
+}

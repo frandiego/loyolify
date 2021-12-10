@@ -57,11 +57,7 @@ sidebar <- function(cnf) {
                          label = 'Variables', 
                          choices = c(''), 
                          multiple = F)
-    , uiOutput("upload_data_admin")
-    , uiOutput("update_data_admin")
 
-    
-    
   )
   
 
@@ -72,6 +68,17 @@ sidebar <- function(cnf) {
 
 body <- function() {
   argonDashBody(
+    tags$head(
+      tags$style(
+        HTML(".shiny-notification {
+             position:fixed;
+             top: calc(70%);
+             left: calc(20%);
+             }
+             "
+        )
+      )
+    ),
     argonTabItems(
       argonTabItem(
         tabName = 'plot', 
@@ -82,29 +89,94 @@ body <- function() {
         argonRow(argonColumn(uiOutput('subtitle_left'), width = 6, center = T), 
                  argonColumn(uiOutput('subtitle_right'), width = 6, center = T)),
         htmlOutput('plot'), 
+        
         argonRow(
           argonColumn(with=6, 
-                      shiny::selectizeInput(inputId = 'compare', 
-                                            label = 'Comparar', 
-                                            choices = list(No='No', 
-                                                           Centro='school', 
-                                                           Curso = 'course', 
-                                                           Grupo = 'group', 
-                                                           Género = 'gender', 
-                                                           Repetidor = 'is_repeater', 
-                                                           Popular = 'is_popular'),  
-                                            multiple = F)
+                      
+                      pickerInput(
+                        inputId = "compare",
+                        label = "Comparar", 
+                        choices = list(' '=' ', 
+                                       Centro='school', 
+                                       Curso = 'course', 
+                                       Grupo = 'group', 
+                                       Género = 'gender', 
+                                       Repetidor = 'is_repeater', 
+                                       Popular = 'is_popular'),
+                        multiple = TRUE,
+                        selected = ' ', 
+                        options = pickerOptions(maxOptions = 1, noneSelectedText=' ' ), 
+                        choicesOpt = list(
+                          style = "color: steelblue")
+                      )
           ), 
           
           argonColumn(with=6, 
-                      shiny::selectizeInput(inputId = 'facet', 
-                                            label = 'Dividir', 
-                                            choices = list(No='No', 
-                                                           Género = 'gender', 
-                                                           Repetidor = 'is_repeater', 
-                                                           Popular = 'is_popular'),  
-                                            multiple = F)
-          ))
+                      
+                      pickerInput(
+                        inputId = "facet",
+                        label = "Dividir", 
+                        choices = list(' '=' ', 
+                                       Género = 'gender', 
+                                       Repetidor = 'is_repeater', 
+                                       Popular = 'is_popular'),
+                        selected = ' ',
+                        multiple = T,
+                        options = pickerOptions(maxOptions = 1, noneSelectedText=' ' ), 
+                        choicesOpt = list(
+                          style = "color: steelblue")
+                      )
+          )
+          ), 
+        shiny::br(),
+        argonDash::argonSidebarDivider(),
+        
+        argonRow(
+          argonColumn(width = 3, 
+                      uiOutput("admin_upload_data_title")
+          ), 
+          argonColumn(width = 3, 
+                      uiOutput("admin_files_title")
+          ), 
+          argonColumn(width = 3, 
+                      uiOutput('admin_dataset_title'))
+        ), 
+        
+        argonRow(
+          argonColumn(width = 3, 
+            uiOutput("admin_upload_data_select")
+            ), 
+          
+          argonColumn(width = 3, 
+                      uiOutput("admin_files_list")
+          ),
+          argonColumn(width = 3, 
+                      uiOutput("admin_dataset_list")
+          ) 
+          ), 
+        argonRow(
+          argonColumn(width = 3, 
+                      uiOutput("admin_upload_data_process")
+          ), 
+          argonColumn(width = 1, 
+                      uiOutput("admin_files_delete")
+          ), 
+          argonColumn(width = 1, 
+                      uiOutput("admin_dataset_create")
+          ), 
+          
+          argonColumn(width = 3,  center = T,
+                      uiOutput("admin_dataset_delete")
+          )
+        ), 
+        argonRow(
+          argonColumn(width = 3, 
+          uiOutput("admin_upload_data_name")
+          ), 
+          argonColumn(width = 3, 
+                      uiOutput("admin_files_delete_check")
+          )
+        )
       )
      )
     )
