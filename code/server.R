@@ -162,6 +162,15 @@ server <- function(input, output, session) {
     }
   })
   
+  admin_dataset_update <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::actionButton(inputId = 'update_dataset', label = 'Actualizar')
+    }else{
+      div()
+    }
+  })
+  
   admin_dataset_delete_check <- reactive({
     auth_out_list = reactiveValuesToList(auth_out)
     if(as.logical(auth_out_list$admin)){
@@ -202,7 +211,7 @@ server <- function(input, output, session) {
   output$admin_dataset_list <- renderUI({ admin_dataset_list() })
   output$admin_dataset_content <- renderUI({admin_dataset_content() })
   output$admin_dataset_delete <- renderUI({admin_dataset_delete() })
-     
+  output$admin_dataset_update <- renderUI({ admin_dataset_update() })
 
   
   
