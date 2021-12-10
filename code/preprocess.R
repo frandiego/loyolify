@@ -167,14 +167,55 @@ preprocess <- function(cnf, get_data=F){
   }
 }
 
+last_filepath <- function(cnf){
+  cnf$preprocess$output_path %>% 
+    lslatr %>% 
+    head(1) %>% 
+    .[['rn']] 
+}
 
-read_data <- function(cnf){
+
+filepath <- function(cnf, filename=NULL){
+  if(!is.null(filename)){
+    if(filename != ''){
+      filename %>% 
+        file.path(cnf$preprocess, paste0(., '.RDS')) 
+    }else{
+      last_filepath(cnf)
+    }
+  }else{
+    last_filepath(cnf)
+  }
+}
+
+
+read_last_preprocess <- function(cnf){
   cnf$preprocess$output_path %>% 
     lslatr %>% 
     head(1) %>% 
     .[['rn']] %>% 
-    readRDS()
+    readRDS() %>% 
+    .[!is.na(school)] %>% 
+    unique()
 }
+
+
+read_data <- function(cnf, filename=NULL){
+  if(!is.null(filename)){
+    if(filename != ''){
+      filename %>% 
+        file.path(cnf$preprocess, paste0(., '.RDS')) %>%
+        readRDS() %>% 
+        .[!is.na(school)] %>% 
+        unique()
+    }else{
+      read_last_preprocess(cnf)
+    }
+  }else{
+    read_last_preprocess(cnf)
+  }
+}
+
 
 
 

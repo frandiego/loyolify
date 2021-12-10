@@ -180,7 +180,7 @@ server <- function(input, output, session) {
       div()
     }
   })
-  
+
 
   
   
@@ -210,25 +210,55 @@ server <- function(input, output, session) {
   
   output$admin_dataset_delete <- renderUI({admin_dataset_delete() })
   output$admin_dataset_update <- renderUI({ admin_dataset_update() })
+  
+  output$admin_dataset_delete_check <- renderUI({ admin_dataset_delete_check() })
 
   output$admin_dataset_content <- renderTable({admin_dataset_content() })
   
+  
+  
+  selected_title <- reactive({
+    auth_out_list = reactiveValuesToList(auth_out)
+    if(as.logical(auth_out_list$admin)){
+      shiny::h1('Selected')
+    }else{
+      div()
+    }
+  })
+  
+  
+  
+  selected_dataset <- reactive({ 
+    get_filepath(cnf) %>% basename() %>% 
+      gsub('^Selected - ', '', .) %>% 
+      gsub('.RDS$', '', .) %>% 
+      trimws()
+    })
+  
+  
+  
+  output$selected_title <- renderUI({selected_title()})
+  output$selected_dataset <- renderUI({ selected_dataset() })
   
 
   
   
   # read data
   there_is_data = F
+  
+
   data <- reactive({
     users = reactiveValuesToList(auth_out)
     
-    dt = read_data(cnf) %>% filter_comment(comment = users$comment)
+    dt = get_data(cnf) %>% filter_comment(comment = users$comment)
     
     there_is_data<<-T
     
     dt %>% .[]
     
     })
+  
+  
   
   # sections
   sections <- reactive({ data() %>% .[['section']] %>% unique() })
@@ -284,6 +314,7 @@ server <- function(input, output, session) {
     }
   })
   
+
   
   output$title <- renderUI({reactive_title()})
   output$title_comp <- renderUI({reactive_title_comp()})
@@ -498,6 +529,20 @@ server <- function(input, output, session) {
     }
   }
 )
+  
+  # update
+  observeEvent(input$update_dataset, {
+    if (input$dataset_check != 'actualizar'){
+      showNotification("Estas seguro? Escribe: 'actualizar'", duration = 10, type='error')
+    }else{
+      update_selected(input$admin_dataset_list, cnf)
+      updateTextInput(session = session, inputId = 'dataset_check', value = '')
+      showNotification("Refresca para ver los resultados", duration = 10, type='warning')
+      }
+      
+    }
+  )
+  
     
 
   

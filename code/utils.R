@@ -91,6 +91,49 @@ lslatr <- function(path){
 }
 
 
+get_filepath <- function(cnf){
+  cnf$preprocess$output_path %>% 
+    lslatr() %>% 
+    .[grepl('Dataset', rn)] %>% 
+    .[, selected := ifelse(grepl('Selected', rn), 1, 0)] %>% 
+    .[order(-selected, -mtime)] %>% 
+    head(1) %>% 
+    .[['rn']]
+}
+
+get_data <- function(cnf){
+  get_filepath(cnf) %>% 
+    readRDS() %>% 
+    as.data.table() %>% 
+    .[!is.na(school)] %>% 
+    unique()
+}
+
+
+update_selected <- function(filename, cnf){
+  cnf$preprocess$output_path %>% 
+    list.files(full.names = T) %>% 
+    .[grepl('Selected', .)] -> prev_selected
+  
+  filename %>%
+    gsub('.RDS', '', .) %>% 
+    paste0('.RDS') %>% 
+    file.path(cnf$preprocess$output_path, .) -> new_dataset
+  
+  filename %>% 
+    gsub('.RDS', '', .) %>% 
+    paste0('.RDS') %>% 
+    paste0('Selected - ', .) %>% 
+    file.path(cnf$preprocess$output_path, .) -> new_selected
+  
+  file.copy(new_dataset, new_selected, overwrite = T)
+  
+  if(length(prev_selected)>0){
+    for(file in c(prev_selected)){
+      file.remove(file)
+    }
+  }
+}
 
 
 

@@ -139,7 +139,10 @@ body <- function() {
                       uiOutput("admin_files_title")
           ), 
           argonColumn(width = 3, 
-                      uiOutput('admin_dataset_title'))
+                      uiOutput('admin_dataset_title')), 
+          
+          argonColumn(width = 3, 
+                      uiOutput('selected_title'))
         ), 
         
         argonRow(
@@ -153,14 +156,9 @@ body <- function() {
           argonColumn(width = 3, 
                       uiOutput("admin_dataset_list")
           ), 
-          argonColumn(width = 1,  
+          argonColumn(width = 3,
                       shiny::br(), 
-                      uiOutput("admin_dataset_delete")
-          ), 
-          
-          argonColumn(width = 1,  
-                      shiny::br(), 
-                      uiOutput("admin_dataset_update")
+                      uiOutput("selected_dataset")
           )
           ), 
         argonRow(
@@ -170,8 +168,14 @@ body <- function() {
           argonColumn(width = 1, 
                       uiOutput("admin_files_delete")
           ), 
-          argonColumn(width = 1, 
+          argonColumn(width = 2, 
                       uiOutput("admin_dataset_create")
+          ), 
+          argonColumn(width = 1, 
+                      uiOutput("admin_dataset_delete")
+          ), 
+          argonColumn(width = 1, 
+                      uiOutput("admin_dataset_update")
           )
           
         ), 
@@ -184,8 +188,13 @@ body <- function() {
                       
           ), 
           argonColumn(width = 3, 
-                      tableOutput("admin_dataset_content"), 
+                      tableOutput("admin_dataset_delete_check"), 
                       
+          )
+        ), 
+        argonRow(
+          argonColumn(width = 3, 
+                      uiOutput("admin_dataset_content")
           )
         )
       )
