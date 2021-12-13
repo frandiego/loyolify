@@ -132,74 +132,69 @@ body <- function() {
         argonDash::argonSidebarDivider(),
         
         argonRow(
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_upload_data_title")
           ), 
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_files_title")
           ), 
-          argonColumn(width = 3, 
-                      uiOutput('admin_dataset_title')), 
-          
-          argonColumn(width = 3, 
-                      uiOutput('selected_title'))
+          argonColumn(width = 4, 
+                      uiOutput('admin_dataset_title'))
         ), 
         
         argonRow(
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
             uiOutput("admin_upload_data_select")
             ), 
           
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_files_list")
           ),
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_dataset_list")
-          ), 
-          argonColumn(width = 3,
-                      shiny::br(), 
-                      uiOutput("selected_dataset")
           )
           ), 
         argonRow(
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_upload_data_process")
           ), 
           argonColumn(width = 1, 
                       uiOutput("admin_files_delete")
           ), 
-          argonColumn(width = 2, 
+          argonColumn(width = 3, 
                       uiOutput("admin_dataset_create")
           ), 
           argonColumn(width = 1, 
                       uiOutput("admin_dataset_delete")
           ), 
-          argonColumn(width = 1, 
+          argonColumn(width = 2, 
                       uiOutput("admin_dataset_update")
           )
-          
         ), 
         argonRow(
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
           uiOutput("admin_upload_data_name")
           ), 
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       uiOutput("admin_files_delete_check"), 
                       
           ), 
-          argonColumn(width = 3, 
+          argonColumn(width = 4, 
                       tableOutput("admin_dataset_delete_check"), 
                       
           )
-        ), 
-        argonRow(
-          argonColumn(width = 3, 
-                      uiOutput("admin_dataset_content")
           )
-        )
+        , 
+        argonRow(uiOutput('selected_title'), center = F), 
+        argonRow(shiny::br(),uiOutput("selected_dataset"), center = F), 
+        argonRow(uiOutput('admin_content_title')), 
+        argonRow(uiOutput("admin_dataset_list_title")),
+        argonRow(DT::DTOutput("admin_dataset_content"))
+        
       )
      )
-    )
+  )
+    
   
 }
 

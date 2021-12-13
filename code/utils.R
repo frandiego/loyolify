@@ -94,9 +94,7 @@ lslatr <- function(path){
 get_filepath <- function(cnf){
   cnf$preprocess$output_path %>% 
     lslatr() %>% 
-    .[grepl('Dataset', rn)] %>% 
-    .[, selected := ifelse(grepl('Selected', rn), 1, 0)] %>% 
-    .[order(-selected, -mtime)] %>% 
+    .[order(-mtime)] %>% 
     head(1) %>% 
     .[['rn']]
 }
@@ -110,31 +108,76 @@ get_data <- function(cnf){
 }
 
 
-update_selected <- function(filename, cnf){
-  cnf$preprocess$output_path %>% 
-    list.files(full.names = T) %>% 
-    .[grepl('Selected', .)] -> prev_selected
-  
-  filename %>%
-    gsub('.RDS', '', .) %>% 
-    paste0('.RDS') %>% 
-    file.path(cnf$preprocess$output_path, .) -> new_dataset
-  
-  filename %>% 
-    gsub('.RDS', '', .) %>% 
-    paste0('.RDS') %>% 
-    paste0('Selected - ', .) %>% 
-    file.path(cnf$preprocess$output_path, .) -> new_selected
-  
-  file.copy(new_dataset, new_selected, overwrite = T)
-  
-  if(length(prev_selected)>0){
-    for(file in c(prev_selected)){
-      file.remove(file)
-    }
+
+
+file_touch <- function(path){
+  new = path %>% strsplit('.RDS') %>% unlist() %>% head(1) %>% paste0('_temp.RDS')
+  file.copy(path, new)
+  file.remove(path)
+  file.rename(new, path)
+}
+
+
+
+safe_fread <- function(path){
+  if(file.exists(path)){
+    return(fread(path))
+  }else{
+    return(data.table())
   }
 }
 
 
+
+update_control <- function(file, cnf){
+  filepath = file.path(cnf$preprocess$output_path, cnf$preprocess$control_table)
+  filepath%>% 
+    safe_fread() %>% 
+    list(., 
+         data.table(file=paste0(file, '.RDS'), 
+                    timestamp=lubridate::now(tzone = 'UTC'))) %>% 
+    rbindlist(fill = T) %>% 
+    unique() %>% 
+    setorder(-timestamp) %>% 
+    head(100) %>%  
+    fwrite(filepath)
+}
+
+
+last_file <- function(cnf){
+  cnf$preprocess$output_path %>% 
+    file.path(cnf$preprocess$control_table) %>% 
+    fread %>% 
+    setorder(-timestamp) %>% 
+    head(1) %>% 
+    .[['file']] %>% 
+    file.path(cnf$preprocess$output_path, .) -> filepath
+  
+  if(!file.exists(filepath)){
+    cnf$preprocess$output_path %>% 
+      lslatr() %>% 
+        .[grepl('.RDS', rn)] %>% 
+        .[order(-mtime)] %>% 
+        head(1) %>% 
+        .[['rn']] -> filepath
+  }
+  return(filepath)
+}
+
+
+admin_dataset_list_choices <- function(cnf, basenames=T){
+  cnf$preprocess$output_path %>% 
+    lslatr() %>% 
+    .[grepl('.RDS', rn)] %>% 
+    .[['rn']] %>% 
+    unique() -> files
+  
+  if(basenames){
+    files %>% 
+      basename() %>% 
+      map_chr(~strsplit(. , '\\.') %>% unlist %>% head(1)) -> files
+  }
+  return(files)
+}
 
 

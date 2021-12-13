@@ -189,36 +189,6 @@ filepath <- function(cnf, filename=NULL){
 }
 
 
-read_last_preprocess <- function(cnf){
-  cnf$preprocess$output_path %>% 
-    lslatr %>% 
-    head(1) %>% 
-    .[['rn']] %>% 
-    readRDS() %>% 
-    .[!is.na(school)] %>% 
-    unique()
-}
-
-
-read_data <- function(cnf, filename=NULL){
-  if(!is.null(filename)){
-    if(filename != ''){
-      filename %>% 
-        file.path(cnf$preprocess, paste0(., '.RDS')) %>%
-        readRDS() %>% 
-        .[!is.na(school)] %>% 
-        unique()
-    }else{
-      read_last_preprocess(cnf)
-    }
-  }else{
-    read_last_preprocess(cnf)
-  }
-}
-
-
-
-
 
 tidy_and_process <- function(input_files, cnf){
   tidy(input_files = input_files, cnf = cnf)
@@ -228,13 +198,12 @@ tidy_and_process <- function(input_files, cnf){
 tidy_and_process_safe <- purrr::safely(tidy_and_process)
 
 
-preprocess_paths <- function(paths, cnf){
+preprocess_paths <- function(paths, dataset_name, cnf){
   paths %>% 
     map(readRDS) %>% 
     rbindlist(fill = T) %>% 
     preprocess_data %>% 
-    saveRDS(file.path(cnf$preprocess$output_path, 
-                      format(Sys.time(), "Dataset - %Y-%m-%d_%H:%M:%S.RDS")))
+    saveRDS(file.path(cnf$preprocess$output_path, paste0(dataset_name, '.RDS')))
 } 
 
 preprocess_paths_safe <- purrr::safely(preprocess_paths)

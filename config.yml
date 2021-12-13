@@ -8,6 +8,7 @@ tidy:
     
 preprocess:
   output_path: data/prep
+  control_table: ctrl.csv
   columns:
     - usuario_id
     - alumno_id
