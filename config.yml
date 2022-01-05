@@ -8,6 +8,7 @@ tidy:
     
 preprocess:
   output_path: data/prep
+  control_table: ctrl.csv
   columns:
     - usuario_id
     - alumno_id
@@ -75,4 +76,18 @@ deploy:
   database: ./admin/credentials.sqlite
   passphrase: supersecret
 
+booleans:
+  gender: 
+    - mujer
+    - hombre
+  is_left_handed:
+    - zurdo
+    - diestro
+  is_popular:
+    - popular
+    - 'no popular'
+  is_repeater:
+    - repetidor
+    - 'no repetidor'
+  
   

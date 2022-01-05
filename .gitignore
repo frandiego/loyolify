@@ -1,7 +1,0 @@
-.DS_Store
-.Rprofile
-.Rhistory
-.Rproj.user/
-data/
-*.json
-*.sqlite
