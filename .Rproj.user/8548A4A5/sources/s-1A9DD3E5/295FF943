@@ -1,0 +1,27 @@
+{
+    "id": "295FF943",
+    "path": "~/Documents/Projects/loyolify/code/server.R",
+    "project_path": "code/server.R",
+    "type": "r_source",
+    "hash": "514656923",
+    "contents": "",
+    "dirty": false,
+    "created": 1641830990027.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "606,44",
+        "scrollLine": "601"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1641831128,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1641831128094,
+    "read_only": false,
+    "read_only_alternatives": []
+}
