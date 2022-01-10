@@ -2,6 +2,3 @@
 .Rprofile
 .Rhistory
 .Rproj.user/
-data/
-*.json
-*.sqlite

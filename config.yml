@@ -75,5 +75,6 @@ deploy:
   port: 8080
   database: ./admin/credentials.sqlite
   passphrase: supersecret
-
+  credentials: ./admin/creds.json
+  bucket: loyolify
   

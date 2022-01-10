@@ -35,6 +35,9 @@ RUN R -e "remotes::install_version('stringr', version='1.4.0')"
 RUN R -e "remotes::install_version('shinymanager', version='1.0.400')"
 RUN R -e "remotes::install_version('shinyWidgets', version='0.6.2')"
 RUN R -e "remotes::install_version('DT', version='0.20')"
+RUN R -e "remotes::install_version('googleCloudStorageR', version='0.7.0')"
+
+
 
 # config and code
 COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
@@ -43,9 +46,11 @@ WORKDIR /srv/shiny-server/
   RUN rm -rf *
   COPY . .
 RUN mkdir -p data 
-RUN mkdir -p admin
 RUN chmod -R 777 data
+RUN mkdir -p admin
 RUN chmod a+rw admin admin/*
+
+ENV SHINY_LOG_LEVEL=TRACE
   
   
 # expose and show

@@ -1,5 +1,5 @@
 ROJECT_ID:= dashbaord-331416
-SERVICE_NAME:= loyolify
+SERVICE_NAME:= loyolify-dev
 IMAGE:= gcr.io/${ROJECT_ID}/${SERVICE_NAME}
 REGION:= europe-north1
 INSTANCES:= 1

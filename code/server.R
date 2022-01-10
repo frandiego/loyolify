@@ -573,7 +573,12 @@ server <- function(input, output, session) {
     }
   )
   
-    
+  
+  observe({
+    invalidateLater(1000 * 60, session)
+    sync(cnf)
+    sync_credentials(cnf)
+  })
 
   
   
